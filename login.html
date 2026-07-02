@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - English Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">EN</span>
+      English Up
+    </a>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost">Log In</a>
+      <a href="login.html?mode=signup" class="btn btn-primary">Sign Up Free</a>
+    </div>
+  </nav>
+
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <h1 id="authTitle">Welcome back</h1>
+          <p id="authSubtitle">Log in to continue your English learning journey</p>
+        </div>
+
+        <div id="errorMsg" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#EF4444;padding:12px;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;"></div>
+        <div id="successMsg" style="display:none;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10B981;padding:12px;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;"></div>
+
+        <form id="authForm">
+          <div class="form-group" id="nameGroup" style="display:none;">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" class="form-input" placeholder="Your full name">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" class="form-input" placeholder="Min 6 characters" required minlength="6">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-bottom:1rem;" id="submitBtn">
+            <span id="submitText">Log In</span>
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <span id="toggleText">Don't have an account?</span>
+          <a href="#" id="toggleLink">Sign up for free</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let isSignUp = false;
+    const $ = id => document.getElementById(id);
+
+    function setMode(signup) {
+      isSignUp = signup;
+      $('authTitle').textContent = signup ? 'Create account' : 'Welcome back';
+      $('authSubtitle').textContent = signup ? 'Start your English learning journey' : 'Log in to continue';
+      $('submitText').textContent = signup ? 'Sign Up' : 'Log In';
+      $('toggleText').textContent = signup ? 'Already have an account?' : "Don't have an account?";
+      $('toggleLink').textContent = signup ? 'Log in' : 'Sign up for free';
+      $('nameGroup').style.display = signup ? 'block' : 'none';
+      $('errorMsg').style.display = 'none';
+      $('successMsg').style.display = 'none';
+    }
+
+    $('toggleLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      setMode(!isSignUp);
+    });
+
+    $('authForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      $('errorMsg').style.display = 'none';
+      $('successMsg').style.display = 'none';
+
+      const email = $('email').value;
+      const password = $('password').value;
+      const btn = $('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+
+      try {
+        if (!initSupabase()) throw new Error('Supabase client failed to initialize. Reload the page.');
+
+        if (isSignUp) {
+          const fullName = $('fullName').value || email.split('@')[0];
+          await signUp(email, password, fullName);
+          $('successMsg').textContent = 'Account created! Check your email to confirm, then log in.';
+          $('successMsg').style.display = 'block';
+          setTimeout(() => setMode(false), 4000);
+        } else {
+          await signIn(email, password);
+          window.location.href = 'dashboard.html';
+        }
+      } catch (err) {
+        $('errorMsg').textContent = err.message || 'Something went wrong. Try again.';
+        $('errorMsg').style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span id="submitText">' + (isSignUp ? 'Sign Up' : 'Log In') + '</span>';
+      }
+    });
+
+    // Check URL params and redirect if already logged in
+    document.addEventListener('DOMContentLoaded', async function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'signup') setMode(true);
+
+      if (!initSupabase()) {
+        $('errorMsg').textContent = 'Supabase library not loaded. Reload the page.';
+        $('errorMsg').style.display = 'block';
+        return;
+      }
+      const user = await getUser().catch(() => null);
+      if (user) window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speaking - English Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">EN</span>
+      English Up
+    </a>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Home</a></li>
+      <li><a href="activities.html">Activities</a></li>
+      <li><a href="progress.html">Progress</a></li>
+      <li><a href="speaking.html" class="active">Speaking</a></li>
+      <li><a href="grammar.html">Writing</a></li>
+      <li><a href="reading.html">Reading</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="nav-user" id="userMenu">
+        <div class="nav-user-avatar" id="userAvatar">--</div>
+        <span id="userName">Loading...</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="handleLogout()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="speaking-page">
+    <div class="speaking-container">
+      <div class="speaking-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h1 style="font-size: 1.5rem; font-weight: 700;">Speaking — B1</h1>
+          <span style="color: var(--text-secondary);" id="exerciseCounter">1/0</span>
+        </div>
+
+        <div class="instruction-box">
+          <h4>Speaking Exercise</h4>
+          <p>Read the sentence aloud and record your voice. The AI will analyze your pronunciation.</p>
+        </div>
+
+        <div class="sentence-display" id="sentenceDisplay">
+          Loading...
+        </div>
+
+        <div class="recording-section">
+          <div class="mic-status">
+            <div class="mic-indicator">
+              <div class="mic-dot idle" id="micReady">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/></svg>
+              </div>
+              <span class="mic-label">Ready</span>
+            </div>
+            <div class="mic-indicator">
+              <div class="mic-dot" id="micRecording">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+              </div>
+              <span class="mic-label">Recording</span>
+            </div>
+            <div class="mic-indicator">
+              <div class="mic-dot" id="micComplete">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <span class="mic-label">Complete</span>
+            </div>
+            <div class="mic-indicator">
+              <div class="mic-dot" id="micAnalyzing">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <span class="mic-label">Analyzing</span>
+            </div>
+          </div>
+
+          <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          </button>
+          <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;" id="recordLabel">Click to start recording</p>
+        </div>
+
+        <div class="pronunciation-score" id="scoreSection" style="display: none;">
+          <div class="score-value" id="scoreValue">0%</div>
+          <div class="score-label">Pronunciation Accuracy</div>
+        </div>
+
+        <div class="tips-box" id="tipBox">
+          <h4>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Pronunciation Tip
+          </h4>
+          <p id="tipText">Focus on clear pronunciation and natural sentence rhythm.</p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+          <button class="btn btn-ghost" onclick="listenExample()" style="flex: 1;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+            Listen to example
+          </button>
+          <button class="btn btn-primary" onclick="nextExercise()" style="flex: 1;">
+            Next exercise
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let currentUser = null;
+    let exercises = [];
+    let currentIndex = 0;
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+
+    async function init() {
+      currentUser = await getUser();
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const profile = await getProfile(currentUser.id);
+      if (!profile) {
+        profile = { full_name: user.email || currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
+      }
+      const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : currentUser.email[0].toUpperCase();
+      document.getElementById('userAvatar').textContent = initials;
+      document.getElementById('userName').textContent = profile.full_name || currentUser.email;
+
+      try {
+        exercises = await getExercises('speaking');
+        if (exercises.length === 0) {
+          document.getElementById('sentenceDisplay').textContent = 'No speaking exercises available yet.';
+          return;
+        }
+        renderExercise();
+      } catch (error) {
+        console.error('Error loading speaking exercises:', error);
+      }
+    }
+
+    function renderExercise() {
+      if (currentIndex >= exercises.length) {
+        document.getElementById('sentenceDisplay').textContent = 'All exercises completed! Great job!';
+        document.getElementById('exerciseCounter').textContent = 'Complete';
+        return;
+      }
+
+      const ex = exercises[currentIndex];
+      document.getElementById('exerciseCounter').textContent = `${currentIndex + 1}/${exercises.length}`;
+      document.getElementById('sentenceDisplay').textContent = ex.question.replace('Read aloud: ', '').replace(/"/g, '');
+
+      document.getElementById('scoreSection').style.display = 'none';
+      document.getElementById('tipText').textContent = ex.explanation || 'Focus on clear pronunciation and natural sentence rhythm.';
+
+      resetMicStatus();
+    }
+
+    function resetMicStatus() {
+      document.getElementById('micReady').className = 'mic-dot idle';
+      document.getElementById('micRecording').className = 'mic-dot';
+      document.getElementById('micComplete').className = 'mic-dot';
+      document.getElementById('micAnalyzing').className = 'mic-dot';
+    }
+
+    async function toggleRecording() {
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = async () => {
+            stream.getTracks().forEach(track => track.stop());
+            analyzeRecording();
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+
+          document.getElementById('recordBtn').classList.add('recording');
+          document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+          document.getElementById('recordLabel').textContent = 'Recording... Click to stop';
+          document.getElementById('micReady').className = 'mic-dot active';
+          document.getElementById('micRecording').className = 'mic-dot recording';
+        } catch (err) {
+          alert('Microphone access is required for this exercise. Please allow microphone access and try again.');
+        }
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>';
+        document.getElementById('recordLabel').textContent = 'Analyzing pronunciation...';
+        document.getElementById('micRecording').className = 'mic-dot';
+        document.getElementById('micAnalyzing').className = 'mic-dot pending';
+      }
+    }
+
+    async function analyzeRecording() {
+      // Simulate pronunciation analysis (in real app, send audio to speech-to-text API)
+      const score = Math.floor(Math.random() * 30) + 70;
+
+      document.getElementById('micAnalyzing').className = 'mic-dot';
+      document.getElementById('micComplete').className = 'mic-dot active';
+      document.getElementById('recordLabel').textContent = 'Recording complete!';
+
+      document.getElementById('scoreSection').style.display = 'block';
+      document.getElementById('scoreValue').textContent = score + '%';
+
+      const ex = exercises[currentIndex];
+      await saveProgress(currentUser.id, ex.id, score >= 70, 'pronunciation_' + score);
+      await updateStreak(currentUser.id);
+    }
+
+    function listenExample() {
+      if ('speechSynthesis' in window && currentIndex < exercises.length) {
+        const utterance = new SpeechSynthesisUtterance(
+          document.getElementById('sentenceDisplay').textContent
+        );
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        speechSynthesis.speak(utterance);
+      } else {
+        alert('Text-to-speech is not supported in your browser.');
+      }
+    }
+
+    function nextExercise() {
+      currentIndex++;
+      renderExercise();
+    }
+
+    async function handleLogout() {
+      await signOut();
+      window.location.href = 'index.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

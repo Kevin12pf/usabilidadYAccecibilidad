@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnostic Test - English Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <span class="brand-icon">EN</span>
+      English Up
+    </a>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Home</a></li>
+      <li><a href="activities.html">Activities</a></li>
+      <li><a href="progress.html">Progress</a></li>
+      <li><a href="speaking.html">Speaking</a></li>
+      <li><a href="grammar.html">Writing</a></li>
+      <li><a href="reading.html">Reading</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="nav-user" id="userMenu">
+        <div class="nav-user-avatar" id="userAvatar">--</div>
+        <span id="userName">Loading...</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="handleLogout()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="test-page">
+    <div class="test-container">
+      <div class="test-header">
+        <h1>Diagnostic Test</h1>
+        <p>Answer all questions carefully. Your results will determine your starting level.</p>
+      </div>
+
+      <div class="test-progress">
+        <div class="test-progress-bar">
+          <div class="test-progress-fill" id="testProgressFill" style="width: 0%"></div>
+        </div>
+        <span class="test-progress-text" id="testProgressText">0/0</span>
+      </div>
+
+      <div id="questionContainer">
+        <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+          <p>Loading diagnostic questions...</p>
+        </div>
+      </div>
+
+      <div class="question-nav">
+        <button class="btn btn-ghost" id="prevBtn" onclick="prevQuestion()" disabled>
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Previous
+        </button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
+          Next question
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let currentUser = null;
+    let questions = [];
+    let currentQuestion = 0;
+    let answers = {};
+    let correctCount = 0;
+
+    async function init() {
+      currentUser = await getUser();
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const profile = await getProfile(currentUser.id);
+      if (!profile) {
+        profile = { full_name: user.email || currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
+      }
+      const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : currentUser.email[0].toUpperCase();
+      document.getElementById('userAvatar').textContent = initials;
+      document.getElementById('userName').textContent = profile.full_name || currentUser.email;
+
+      try {
+        const grammarExercises = await getExercises('grammar');
+        const vocabExercises = await getExercises('vocabulary');
+        questions = [...grammarExercises.slice(0, 5), ...vocabExercises.slice(0, 5)];
+
+        if (questions.length === 0) {
+          document.getElementById('questionContainer').innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-secondary);"><p>No diagnostic questions available.</p><a href="dashboard.html" class="btn btn-primary" style="margin-top:1rem;">Go to Dashboard</a></div>';
+          return;
+        }
+
+        document.getElementById('testProgressText').textContent = `0/${questions.length}`;
+        renderQuestion();
+      } catch (error) {
+        console.error('Error loading diagnostic:', error);
+      }
+    }
+
+    function renderQuestion() {
+      if (currentQuestion >= questions.length) {
+        finishTest();
+        return;
+      }
+
+      const q = questions[currentQuestion];
+      const options = q.options || [];
+      const progress = ((currentQuestion) / questions.length) * 100;
+      document.getElementById('testProgressFill').style.width = progress + '%';
+      document.getElementById('testProgressText').textContent = `${currentQuestion + 1}/${questions.length}`;
+
+      document.getElementById('prevBtn').disabled = currentQuestion === 0;
+
+      if (currentQuestion === questions.length - 1) {
+        document.getElementById('nextBtn').innerHTML = 'Finish Test <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+      } else {
+        document.getElementById('nextBtn').innerHTML = 'Next question <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+      }
+
+      const selectedAnswer = answers[q.id] || '';
+
+      document.getElementById('questionContainer').innerHTML = `
+        <div class="question-card fade-in">
+          <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+          <div class="question-text">${q.question}</div>
+          <div class="options-list">
+            ${options.map(opt => `
+              <div class="option-item ${selectedAnswer === opt ? 'selected' : ''}" data-value="${opt}" onclick="selectAnswer('${q.id}', '${opt.replace(/'/g, "\\'")}', this)">
+                <div class="option-radio"></div>
+                <span class="option-text">${opt}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function selectAnswer(qId, answer, el) {
+      document.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      answers[qId] = answer;
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        finishTest();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      }
+    }
+
+    async function finishTest() {
+      correctCount = 0;
+      for (const q of questions) {
+        if (answers[q.id] === q.correct_answer) {
+          correctCount++;
+          await saveProgress(currentUser.id, q.id, true, answers[q.id]);
+        } else if (answers[q.id]) {
+          await saveProgress(currentUser.id, q.id, false, answers[q.id]);
+        }
+      }
+
+      const percentage = Math.round((correctCount / questions.length) * 100);
+      let level = 'A1';
+      if (percentage >= 90) level = 'C1';
+      else if (percentage >= 80) level = 'B2';
+      else if (percentage >= 70) level = 'B1+';
+      else if (percentage >= 60) level = 'B1';
+      else if (percentage >= 50) level = 'A2';
+
+      await updateProfile(currentUser.id, { level });
+      await saveScore(currentUser.id, correctCount, questions.length, 'diagnostic');
+      await updateStreak(currentUser.id);
+
+      document.getElementById('questionContainer').innerHTML = `
+        <div class="question-card fade-in" style="text-align: center;">
+          <div style="font-size: 4rem; margin-bottom: 1rem;">🏆</div>
+          <h2 style="margin-bottom: 1rem;">Test Complete!</h2>
+          <div class="stat-value green" style="font-size: 3rem; margin-bottom: 0.5rem;">${percentage}%</div>
+          <p style="color: var(--text-secondary); margin-bottom: 1rem;">You got ${correctCount} out of ${questions.length} correct</p>
+          <div class="level-badge" style="display: inline-flex; margin-bottom: 2rem;">
+            Your Level: ${level}
+          </div>
+          <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+            <a href="activities.html?module=grammar" class="btn btn-outline">Start Learning</a>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('testProgressFill').style.width = '100%';
+      document.getElementById('testProgressText').textContent = 'Complete!';
+      document.querySelector('.question-nav').style.display = 'none';
+    }
+
+    async function handleLogout() { await signOut(); window.location.href = 'index.html'; }
+
+    init();
+  </script>
+</body>
+</html>
