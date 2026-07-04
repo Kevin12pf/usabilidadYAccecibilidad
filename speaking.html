@@ -38,13 +38,13 @@
     <div class="speaking-container">
       <div class="speaking-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h1 style="font-size: 1.5rem; font-weight: 700;">Speaking — B1</h1>
+          <h1 style="font-size: 1.5rem; font-weight: 700;">Speaking</h1>
           <span style="color: var(--text-secondary);" id="exerciseCounter">1/0</span>
         </div>
 
         <div class="instruction-box">
           <h4>Speaking Exercise</h4>
-          <p>Read the sentence aloud and record your voice. The AI will analyze your pronunciation.</p>
+          <p>Read the sentence aloud and click the microphone. The browser will analyze your pronunciation in real time.</p>
         </div>
 
         <div class="sentence-display" id="sentenceDisplay">
@@ -63,7 +63,7 @@
               <div class="mic-dot" id="micRecording">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
               </div>
-              <span class="mic-label">Recording</span>
+              <span class="mic-label">Listening</span>
             </div>
             <div class="mic-indicator">
               <div class="mic-dot" id="micComplete">
@@ -120,8 +120,16 @@
     let exercises = [];
     let currentIndex = 0;
     let isRecording = false;
-    let mediaRecorder = null;
-    let audioChunks = [];
+    let liveTranscript = '';
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+    }
 
     async function init() {
       currentUser = await getUser();
@@ -132,7 +140,7 @@
 
       const profile = await getProfile(currentUser.id);
       if (!profile) {
-        profile = { full_name: user.email || currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
+        profile = { full_name: currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
       }
       const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : currentUser.email[0].toUpperCase();
       document.getElementById('userAvatar').textContent = initials;
@@ -158,7 +166,7 @@
       }
 
       const ex = exercises[currentIndex];
-      document.getElementById('exerciseCounter').textContent = `${currentIndex + 1}/${exercises.length}`;
+      document.getElementById('exerciseCounter').textContent = (currentIndex + 1) + '/' + exercises.length;
       document.getElementById('sentenceDisplay').textContent = ex.question.replace('Read aloud: ', '').replace(/"/g, '');
 
       document.getElementById('scoreSection').style.display = 'none';
@@ -174,35 +182,24 @@
       document.getElementById('micAnalyzing').className = 'mic-dot';
     }
 
-    async function toggleRecording() {
+    function toggleRecording() {
+      if (!recognition) {
+        alert('Speech Recognition is not supported in this browser.\n\nPlease use Google Chrome or Microsoft Edge for pronunciation analysis.');
+        return;
+      }
+
       if (!isRecording) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
-          audioChunks = [];
+        liveTranscript = '';
+        startRecognition();
+        isRecording = true;
 
-          mediaRecorder.ondataavailable = (event) => {
-            audioChunks.push(event.data);
-          };
-
-          mediaRecorder.onstop = async () => {
-            stream.getTracks().forEach(track => track.stop());
-            analyzeRecording();
-          };
-
-          mediaRecorder.start();
-          isRecording = true;
-
-          document.getElementById('recordBtn').classList.add('recording');
-          document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
-          document.getElementById('recordLabel').textContent = 'Recording... Click to stop';
-          document.getElementById('micReady').className = 'mic-dot active';
-          document.getElementById('micRecording').className = 'mic-dot recording';
-        } catch (err) {
-          alert('Microphone access is required for this exercise. Please allow microphone access and try again.');
-        }
+        document.getElementById('recordBtn').classList.add('recording');
+        document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+        document.getElementById('recordLabel').textContent = 'Listening... Speak now, then click to stop';
+        document.getElementById('micReady').className = 'mic-dot active';
+        document.getElementById('micRecording').className = 'mic-dot recording';
       } else {
-        mediaRecorder.stop();
+        stopRecognition();
         isRecording = false;
 
         document.getElementById('recordBtn').classList.remove('recording');
@@ -210,12 +207,123 @@
         document.getElementById('recordLabel').textContent = 'Analyzing pronunciation...';
         document.getElementById('micRecording').className = 'mic-dot';
         document.getElementById('micAnalyzing').className = 'mic-dot pending';
+
+        setTimeout(function() { analyzeRecording(); }, 500);
       }
     }
 
+    function startRecognition() {
+      recognition.onresult = function(event) {
+        var interim = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            liveTranscript += event.results[i][0].transcript + ' ';
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+        if (interim) {
+          document.getElementById('recordLabel').textContent = 'Hearing: ' + interim;
+        }
+      };
+
+      recognition.onerror = function(event) {
+        console.log('Recognition error:', event.error);
+        if (event.error === 'not-allowed') {
+          alert('Microphone access was denied. Please allow microphone access and try again.');
+          isRecording = false;
+          document.getElementById('recordBtn').classList.remove('recording');
+          document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>';
+          document.getElementById('recordLabel').textContent = 'Click to start recording';
+          resetMicStatus();
+        }
+      };
+
+      recognition.onend = function() {
+        if (isRecording) {
+          try { recognition.start(); } catch(e) {}
+        }
+      };
+
+      try {
+        recognition.start();
+      } catch(e) {
+        console.error('Failed to start recognition:', e);
+      }
+    }
+
+    function stopRecognition() {
+      recognition.onend = null;
+      try { recognition.stop(); } catch(e) {}
+    }
+
     async function analyzeRecording() {
-      // Simulate pronunciation analysis (in real app, send audio to speech-to-text API)
-      const score = Math.floor(Math.random() * 30) + 70;
+      document.getElementById('micAnalyzing').className = 'mic-dot pending';
+      document.getElementById('recordLabel').textContent = 'Analyzing pronunciation...';
+
+      var expected = exercises[currentIndex].question.replace('Read aloud: ', '').replace(/"/g, '');
+
+      try {
+        var score = calculateScore(liveTranscript, expected);
+        displayResults(score, liveTranscript, expected);
+
+        var ex = exercises[currentIndex];
+        await saveProgress(currentUser.id, ex.id, score >= 70, 'pronunciation_' + score);
+        await updateStreak(currentUser.id);
+      } catch (err) {
+        console.error('Analysis error:', err);
+        document.getElementById('micAnalyzing').className = 'mic-dot';
+        document.getElementById('micComplete').className = 'mic-dot active';
+        document.getElementById('recordLabel').textContent = 'Could not analyze. Try again.';
+      }
+    }
+
+    function calculateScore(transcript, expected) {
+      var normalize = function(s) { return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim(); };
+      var t = normalize(transcript);
+      var e = normalize(expected);
+
+      if (!t) return 0;
+      if (t === e) return 100;
+
+      var distance = levenshtein(t, e);
+      var maxLen = Math.max(t.length, e.length);
+      return Math.round(((maxLen - distance) / maxLen) * 100);
+    }
+
+    function levenshtein(a, b) {
+      var matrix = [];
+      for (var i = 0; i <= a.length; i++) {
+        matrix[i] = [];
+        for (var j = 0; j <= b.length; j++) {
+          if (i === 0) { matrix[i][j] = j; }
+          else if (j === 0) { matrix[i][j] = i; }
+          else {
+            var cost = a[i-1] === b[j-1] ? 0 : 1;
+            matrix[i][j] = Math.min(
+              matrix[i-1][j] + 1,
+              matrix[i][j-1] + 1,
+              matrix[i-1][j-1] + cost
+            );
+          }
+        }
+      }
+      return matrix[a.length][b.length];
+    }
+
+    function displayResults(score, transcript, expected) {
+      var color = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--warning)' : 'var(--danger)';
+
+      var expectedWords = expected.split(/\s+/);
+      var transcriptWords = (transcript || '').split(/\s+/).map(function(w) {
+        return w.toLowerCase().replace(/[^a-z]/g, '');
+      });
+
+      var wordFeedback = expectedWords.map(function(word) {
+        var clean = word.toLowerCase().replace(/[^a-z]/g, '');
+        var found = transcriptWords.indexOf(clean) !== -1;
+        return '<span style="color:' + (found ? 'var(--success)' : 'var(--danger)') + ';font-weight:600;">' + word + '</span>';
+      }).join(' ');
 
       document.getElementById('micAnalyzing').className = 'mic-dot';
       document.getElementById('micComplete').className = 'mic-dot active';
@@ -223,15 +331,16 @@
 
       document.getElementById('scoreSection').style.display = 'block';
       document.getElementById('scoreValue').textContent = score + '%';
+      document.getElementById('scoreValue').style.color = color;
 
-      const ex = exercises[currentIndex];
-      await saveProgress(currentUser.id, ex.id, score >= 70, 'pronunciation_' + score);
-      await updateStreak(currentUser.id);
+      document.getElementById('tipText').innerHTML =
+        '<strong>You said:</strong> "' + (transcript || 'No speech detected') + '"<br><br>' +
+        '<strong>Expected words:</strong><br>' + wordFeedback;
     }
 
     function listenExample() {
       if ('speechSynthesis' in window && currentIndex < exercises.length) {
-        const utterance = new SpeechSynthesisUtterance(
+        var utterance = new SpeechSynthesisUtterance(
           document.getElementById('sentenceDisplay').textContent
         );
         utterance.lang = 'en-US';

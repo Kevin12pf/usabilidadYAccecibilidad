@@ -374,3 +374,139 @@ INSERT INTO exercises (module, title, question, options, correct_answer, explana
  'had seen',
  'In reported speech, past simple → past perfect: saw → had seen.',
  'hard', 8);
+
+-- =============================================
+-- SPEAKING EXERCISES
+-- =============================================
+
+INSERT INTO exercises (module, title, question, options, correct_answer, explanation, difficulty, order_index) VALUES
+
+-- A1: Basic Greetings & Simple Sentences
+('speaking', 'Greeting', 'Read aloud: Hello, how are you?',
+ '[]', 'Hello, how are you?',
+ 'Focus on the "h" sound in "how" and the rising intonation at the end.',
+ 'easy', 1),
+
+('speaking', 'Introduction', 'Read aloud: My name is John and I am from Canada.',
+ '[]', 'My name is John and I am from Canada.',
+ 'Practice the "j" in John and the "c" sound in Canada (hard k sound).',
+ 'easy', 2),
+
+('speaking', 'Daily Routine', 'Read aloud: I wake up at seven o''clock every morning.',
+ '[]', 'I wake up at seven o''clock every morning.',
+ 'Stress "seven" and "morning". The "ck" in clock is a quick k sound.',
+ 'easy', 3),
+
+('speaking', 'Family', 'Read aloud: I have two brothers and one sister.',
+ '[]', 'I have two brothers and one sister.',
+ 'The "th" in "three" and "brothers" should be voiced (vibrate your throat).',
+ 'easy', 4),
+
+('speaking', 'Food', 'Read aloud: I would like a coffee with milk, please.',
+ '[]', 'I would like a coffee with milk, please.',
+ 'Contract "I would" to "I''d". Stress "coffee" and "please".',
+ 'easy', 5),
+
+-- A2: Everyday Conversations
+('speaking', 'Weather', 'Read aloud: The weather is really nice today, isn''t it?',
+ '[]', 'The weather is really nice today, isn''t it?',
+ 'Use rising intonation on "isn''t it?" for the tag question.',
+ 'easy', 6),
+
+('speaking', 'Shopping', 'Read aloud: How much does this shirt cost? It looks expensive.',
+ '[]', 'How much does this shirt cost? It looks expensive.',
+ 'Stress "much" and "expensive". The "sh" in shirt is a soft sound.',
+ 'easy', 7),
+
+('speaking', 'Directions', 'Read aloud: Turn left at the traffic light, then go straight for two blocks.',
+ '[]', 'Turn left at the traffic light, then go straight for two blocks.',
+ 'Stress the key directions: left, light, straight, blocks.',
+ 'easy', 8),
+
+('speaking', 'Restaurant', 'Read aloud: Can I see the menu, please? I''m ready to order.',
+ '[]', 'Can I see the menu, please? I''m ready to order.',
+ 'Rising intonation on "please?" and stress "ready" and "order".',
+ 'easy', 9),
+
+('speaking', 'Weekend', 'Read aloud: Last weekend I went to the movies with my friends.',
+ '[]', 'Last weekend I went to the movies with my friends.',
+ 'Past tense: "went" not "goed". Stress "weekend" and "movies".',
+ 'easy', 10),
+
+-- B1: Intermediate Topics
+('speaking', 'Technology', 'Read aloud: Technology has changed the way we communicate with each other.',
+ '[]', 'Technology has changed the way we communicate with each other.',
+ 'Stress "technology" and "communicate". The "ch" in communicate is a k sound.',
+ 'medium', 11),
+
+('speaking', 'Environment', 'Read aloud: We should recycle more and use less plastic to protect the environment.',
+ '[]', 'We should recycle more and use less plastic to protect the environment.',
+ 'Stress "recycle", "less", "plastic", "protect", "environment".',
+ 'medium', 12),
+
+('speaking', 'Travel', 'Read aloud: I''ve always wanted to visit Japan because of its beautiful culture.',
+ '[]', 'I''ve always wanted to visit Japan because of its beautiful culture.',
+ 'Use present perfect: "I''ve" not "I have". Stress "Japan" and "beautiful".',
+ 'medium', 13),
+
+('speaking', 'Health', 'Read aloud: Drinking enough water every day is important for your health.',
+ '[]', 'Drinking enough water every day is important for your health.',
+ 'The "dr" in drinking is a blend sound. Stress "enough", "important", "health".',
+ 'medium', 14),
+
+('speaking', 'Education', 'Read aloud: Learning a new language opens doors to different cultures.',
+ '[]', 'Learning a new language opens doors to different cultures.',
+ 'Stress "learning", "language", "doors", "cultures". The "ng" in learning is a nasal sound.',
+ 'medium', 15),
+
+-- B1+: Complex Sentences
+('speaking', 'Opinions', 'Read aloud: In my opinion, social media has both positive and negative effects on society.',
+ '[]', 'In my opinion, social media has both positive and negative effects on society.',
+ 'Pause after "opinion". Stress "positive", "negative", "effects".',
+ 'medium', 16),
+
+('speaking', 'Comparison', 'Read aloud: Online shopping is more convenient than going to physical stores.',
+ '[]', 'Online shopping is more convenient than going to physical stores.',
+ ' comparative form: "more convenient than". Stress "online", "convenient", "physical".',
+ 'medium', 17),
+
+('speaking', 'Future Plans', 'Read aloud: I''m planning to travel around Europe next summer with my family.',
+ '[]', 'I''m planning to travel around Europe next summer with my family.',
+ 'Use "I''m planning to" for future plans. Stress "Europe", "summer", "family".',
+ 'medium', 18),
+
+('speaking', 'Work', 'Read aloud: Working from home gives employees more flexibility and better work-life balance.',
+ '[]', 'Working from home gives employees more flexibility and better work-life balance.',
+ 'Stress "flexibility" and "balance". The "x" in flexibility is a ks sound.',
+ 'medium', 19),
+
+('speaking', 'Culture', 'Read aloud: Different cultures have unique traditions that make the world more interesting.',
+ '[]', 'Different cultures have unique traditions that make the world more interesting.',
+ 'Stress "different", "unique", "traditions", "interesting".',
+ 'medium', 20),
+
+-- B2: Advanced Topics
+('speaking', 'Debate', 'Read aloud: While some people believe technology isolates us, others argue it brings people together.',
+ '[]', 'While some people believe technology isolates us, others argue it brings people together.',
+ 'Pause after "us". Contrast stress: "isolates" vs "brings together".',
+ 'hard', 21),
+
+('speaking', 'Academic', 'Read aloud: Research shows that students who read regularly perform better in all subjects.',
+ '[]', 'Research shows that students who read regularly perform better in all subjects.',
+ 'Stress "research", "regularly", "perform", "all". The "sh" in research is soft.',
+ 'hard', 22),
+
+('speaking', 'Persuasion', 'Read aloud: Governments should invest more in public transportation to reduce carbon emissions.',
+ '[]', 'Governments should invest more in public transportation to reduce carbon emissions.',
+ 'Stress "governments", "invest", "public", "reduce", "emissions".',
+ 'hard', 23),
+
+('speaking', 'Narrative', 'Read aloud: The moment I stepped off the plane, I knew this trip would change my life forever.',
+ '[]', 'The moment I stepped off the plane, I knew this trip would change my life forever.',
+ 'Pause after "plane". Stress "moment", "stepped", "knew", "change", "forever".',
+ 'hard', 24),
+
+('speaking', 'Abstract', 'Read aloud: Success is not just about achieving goals, but also about the journey and lessons learned along the way.',
+ '[]', 'Success is not just about achieving goals, but also about the journey and lessons learned along the way.',
+ 'Stress "success", "achieving", "journey", "lessons". Use natural pauses at commas.',
+ 'hard', 25);
