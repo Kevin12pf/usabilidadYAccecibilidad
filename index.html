@@ -8,7 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
-</head>
+  <script>
+    (function redirectAuthCallback() {
+      const authParams = window.location.search + window.location.hash;
+      const hasAuthCallback = /access_token|refresh_token|type=(signup|recovery)|error=/.test(authParams);
+      if (hasAuthCallback) window.location.replace('login.html' + window.location.search + window.location.hash);
+    })();
+  </script></head>
 <body>
   <nav class="navbar" id="navbar">
     <a href="index.html" class="nav-brand">

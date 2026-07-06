@@ -12,14 +12,57 @@ function initSupabase() {
   return false;
 }
 
+function getAuthRedirectUrl() {
+  if (['http:', 'https:'].includes(window.location.protocol)) {
+    const baseUrl = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+    return baseUrl + 'login.html';
+  }
+  return 'http://localhost:3000/login.html';
+}
+
 async function signUp(email, password, fullName) {
   if (!_sb) initSupabase();
+  const emailRedirectTo = getAuthRedirectUrl();
   const { data, error } = await _sb.auth.signUp({
     email, password,
-    options: { data: { full_name: fullName } }
+    options: {
+      ...(emailRedirectTo ? { emailRedirectTo } : {}),
+      data: { full_name: fullName }
+    }
   });
   if (error) throw error;
   // Profile is created automatically by the handle_new_user() trigger in the database
+  return data;
+}
+
+async function resendConfirmation(email) {
+  if (!_sb) initSupabase();
+  const emailRedirectTo = getAuthRedirectUrl();
+  const { data, error } = await _sb.auth.resend({
+    type: 'signup',
+    email,
+    options: emailRedirectTo ? { emailRedirectTo } : undefined
+  });
+  if (error) throw error;
+  return data;
+}
+
+
+async function resetPassword(email) {
+  if (!_sb) initSupabase();
+  const emailRedirectTo = getAuthRedirectUrl();
+  const { data, error } = await _sb.auth.resetPasswordForEmail(
+    email,
+    emailRedirectTo ? { redirectTo: emailRedirectTo } : undefined
+  );
+  if (error) throw error;
+  return data;
+}
+
+async function updateUserPassword(newPassword) {
+  if (!_sb) initSupabase();
+  const { data, error } = await _sb.auth.updateUser({ password: newPassword });
+  if (error) throw error;
   return data;
 }
 
@@ -40,6 +83,12 @@ async function getUser() {
   if (!_sb) initSupabase();
   const { data: { user } } = await _sb.auth.getUser();
   return user;
+}
+
+async function getSession() {
+  if (!_sb) initSupabase();
+  const { data: { session } } = await _sb.auth.getSession();
+  return session;
 }
 
 async function getProfile(userId) {
@@ -108,9 +157,10 @@ async function getStreakDays(userId) {
 
 async function saveScore(userId, score, totalQuestions, module) {
   if (!_sb) initSupabase();
-  const percentage = Math.round((score / totalQuestions) * 100);
+  const safeTotalQuestions = totalQuestions > 0 ? totalQuestions : 0;
+  const percentage = safeTotalQuestions > 0 ? Math.round((score / safeTotalQuestions) * 100) : 0;
   const { data, error } = await _sb.from('scores').insert({
-    user_id: userId, score, total_questions: totalQuestions, module, percentage
+    user_id: userId, score, total_questions: safeTotalQuestions, module, percentage
   }).select().single();
   if (error) throw error;
   const { count } = await _sb.from('user_progress').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_correct', true);

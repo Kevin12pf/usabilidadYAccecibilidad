@@ -132,9 +132,9 @@
       currentUser = await getUser();
       if (!currentUser) { window.location.href = 'login.html'; return; }
       try {
-        const profile = await getProfile(currentUser.id);
+        let profile = await getProfile(currentUser.id);
       if (!profile) {
-        profile = { full_name: user.email || currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
+        profile = { full_name: currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
       }
         const initials = profile.full_name ? profile.full_name.split(' ').map(n=>n[0]).join('').toUpperCase() : currentUser.email[0].toUpperCase();
         document.getElementById('userAvatar').textContent = initials;
@@ -182,7 +182,7 @@
           else if (opt.classList.contains('selected') && !isCorrect) opt.classList.add('incorrect');
         });
       });
-      saveProgress(currentUser.id, passage.id, passageCorrect === passage.questions.length, 'reading').catch(console.error);
+      saveProgress(currentUser.id, null, passageCorrect === passage.questions.length, passage.id).catch(console.error);
       updateStreak(currentUser.id).catch(console.error);
       document.getElementById('correctCount').textContent = correctAnswers;
       document.getElementById('incorrectCount').textContent = incorrectAnswers;
@@ -198,7 +198,9 @@
     function showResults() {
       const total = correctAnswers + incorrectAnswers;
       const pct = total>0 ? Math.round((correctAnswers/total)*100) : 0;
-      saveScore(currentUser.id, correctAnswers, total, 'reading').catch(console.error);
+      if (total > 0) {
+        saveScore(currentUser.id, correctAnswers, total, 'reading').catch(console.error);
+      }
       const cls = pct>=80?'excellent':pct>=60?'good':'needs-work';
       document.getElementById('readingContent').innerHTML = '<div class="fade-in" style="text-align:center;padding:3rem;"><div class="score-circle '+cls+'">'+pct+'%</div><h2 style="margin-bottom:0.5rem;">Reading Complete!</h2><p style="color:var(--text-secondary);margin-bottom:2rem;">You answered '+correctAnswers+' out of '+total+' questions correctly</p><div style="display:flex;gap:1rem;justify-content:center;"><button class="btn btn-outline" onclick="resetReading()">Try Again</button><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div></div>';
       document.getElementById('questionCounter').textContent = 'Complete!';

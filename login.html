@@ -44,18 +44,30 @@
             <label for="email">Email</label>
             <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="passwordGroup">
             <label for="password">Password</label>
             <input type="password" id="password" class="form-input" placeholder="Min 6 characters" required minlength="6">
+          </div>
+          <div class="form-group" id="newPasswordGroup" style="display:none;">
+            <label for="newPassword">New password</label>
+            <input type="password" id="newPassword" class="form-input" placeholder="Min 6 characters" minlength="6">
           </div>
           <button type="submit" class="btn btn-primary" style="width:100%;margin-bottom:1rem;" id="submitBtn">
             <span id="submitText">Log In</span>
           </button>
         </form>
 
+        <div class="auth-footer" id="forgotGroup" style="margin-bottom:0.75rem;">
+          <span>Forgot your password?</span>
+          <a href="#" id="forgotLink">Reset it</a>
+        </div>
         <div class="auth-footer">
           <span id="toggleText">Don't have an account?</span>
           <a href="#" id="toggleLink">Sign up for free</a>
+        </div>
+        <div class="auth-footer" id="resendGroup" style="display:none;margin-top:0.75rem;">
+          <span>Didn't get the email?</span>
+          <a href="#" id="resendLink">Resend confirmation</a>
         </div>
       </div>
     </div>
@@ -66,32 +78,129 @@
   <script src="js/main.js"></script>
   <script>
     let isSignUp = false;
+    let isResetMode = false;
     const $ = id => document.getElementById(id);
+
+    async function waitForAuthenticatedUser(maxAttempts = 5, delayMs = 150) {
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const user = await getUser().catch(() => null);
+        if (user) return user;
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+      return null;
+    }
+
+    function showError(message) {
+      $('errorMsg').textContent = message;
+      $('errorMsg').style.display = 'block';
+    }
+
+    function showSuccess(message) {
+      $('successMsg').textContent = message;
+      $('successMsg').style.display = 'block';
+    }
+
+    function clearMessages() {
+      $('errorMsg').style.display = 'none';
+      $('successMsg').style.display = 'none';
+    }
 
     function setMode(signup) {
       isSignUp = signup;
+      isResetMode = false;
       $('authTitle').textContent = signup ? 'Create account' : 'Welcome back';
       $('authSubtitle').textContent = signup ? 'Start your English learning journey' : 'Log in to continue';
       $('submitText').textContent = signup ? 'Sign Up' : 'Log In';
       $('toggleText').textContent = signup ? 'Already have an account?' : "Don't have an account?";
       $('toggleLink').textContent = signup ? 'Log in' : 'Sign up for free';
       $('nameGroup').style.display = signup ? 'block' : 'none';
-      $('errorMsg').style.display = 'none';
-      $('successMsg').style.display = 'none';
+      $('passwordGroup').style.display = 'block';
+      $('newPasswordGroup').style.display = 'none';
+      $('forgotGroup').style.display = signup ? 'none' : 'block';
+      $('resendGroup').style.display = 'none';
+      $('password').required = true;
+      $('newPassword').required = false;
+      clearMessages();
+    }
+
+    function setResetMode() {
+      isSignUp = false;
+      isResetMode = true;
+      $('authTitle').textContent = 'Create new password';
+      $('authSubtitle').textContent = 'Enter your new password to recover access';
+      $('submitText').textContent = 'Update Password';
+      $('toggleText').textContent = 'Remember your password?';
+      $('toggleLink').textContent = 'Log in';
+      $('nameGroup').style.display = 'none';
+      $('passwordGroup').style.display = 'none';
+      $('newPasswordGroup').style.display = 'block';
+      $('forgotGroup').style.display = 'none';
+      $('resendGroup').style.display = 'none';
+      $('password').required = false;
+      $('newPassword').required = true;
+      clearMessages();
+    }
+
+    function getAuthParams() {
+      const search = new URLSearchParams(window.location.search);
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      return { search, hash };
+    }
+
+    function isExistingAccountResponse(data) {
+      return Boolean(data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0);
     }
 
     $('toggleLink').addEventListener('click', function(e) {
       e.preventDefault();
-      setMode(!isSignUp);
+      setMode(isResetMode ? false : !isSignUp);
+    });
+
+    $('forgotLink').addEventListener('click', async function(e) {
+      e.preventDefault();
+      clearMessages();
+
+      const email = $('email').value.trim();
+      if (!email) {
+        showError('Enter your email first, then request the password reset.');
+        return;
+      }
+
+      try {
+        if (!initSupabase()) throw new Error('Supabase client failed to initialize. Reload the page.');
+        await resetPassword(email);
+        showSuccess('Password reset email sent. Check your inbox and spam folder.');
+      } catch (err) {
+        showError(err.message || 'Could not send the password reset email. Try again later.');
+      }
+    });
+
+    $('resendLink').addEventListener('click', async function(e) {
+      e.preventDefault();
+      clearMessages();
+
+      const email = $('email').value.trim();
+      if (!email) {
+        showError('Enter your email first, then request the confirmation again.');
+        return;
+      }
+
+      try {
+        if (!initSupabase()) throw new Error('Supabase client failed to initialize. Reload the page.');
+        await resendConfirmation(email);
+        showSuccess('Confirmation email sent again. Check your inbox and spam folder.');
+      } catch (err) {
+        showError(err.message || 'Could not resend the confirmation email. Try again later.');
+      }
     });
 
     $('authForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      $('errorMsg').style.display = 'none';
-      $('successMsg').style.display = 'none';
+      clearMessages();
 
-      const email = $('email').value;
+      const email = $('email').value.trim();
       const password = $('password').value;
+      const newPassword = $('newPassword').value;
       const btn = $('submitBtn');
       btn.disabled = true;
       btn.textContent = 'Processing...';
@@ -99,37 +208,59 @@
       try {
         if (!initSupabase()) throw new Error('Supabase client failed to initialize. Reload the page.');
 
-        if (isSignUp) {
+        if (isResetMode) {
+          if (newPassword.length < 6) throw new Error('Password must have at least 6 characters.');
+          await updateUserPassword(newPassword);
+          showSuccess('Password updated. You can log in with your new password.');
+          $('newPassword').value = '';
+          setTimeout(() => setMode(false), 2500);
+        } else if (isSignUp) {
           const fullName = $('fullName').value || email.split('@')[0];
-          await signUp(email, password, fullName);
-          $('successMsg').textContent = 'Account created! Check your email to confirm, then log in.';
-          $('successMsg').style.display = 'block';
+          const data = await signUp(email, password, fullName);
+          if (isExistingAccountResponse(data)) {
+            showError('Esta cuenta ya esta registrada. Inicia sesion o usa Reset it si olvidaste tu contrasena.');
+            $('forgotGroup').style.display = 'block';
+            setTimeout(() => setMode(false), 2500);
+            return;
+          }
+          showSuccess('Account created! Check your email to confirm it. If it does not arrive, use Resend confirmation.');
+          $('resendGroup').style.display = 'block';
           setTimeout(() => setMode(false), 4000);
         } else {
-          await signIn(email, password);
-          window.location.href = 'dashboard.html';
+          const result = await signIn(email, password);
+          const user = result?.session?.user || await waitForAuthenticatedUser();
+          if (!user) throw new Error('Login succeeded, but the user session was not ready. Try again.');
+          window.location.replace('dashboard.html');
         }
       } catch (err) {
-        $('errorMsg').textContent = err.message || 'Something went wrong. Try again.';
-        $('errorMsg').style.display = 'block';
+        const message = (err.message || '').toLowerCase();
+        if (isSignUp && (message.includes('already') || message.includes('registered') || message.includes('exists'))) {
+          showError('Esta cuenta ya esta registrada. Inicia sesion o usa Reset it si olvidaste tu contrasena.');
+          $('forgotGroup').style.display = 'block';
+          setTimeout(() => setMode(false), 2500);
+        } else {
+          showError(err.message || 'Something went wrong. Try again.');
+        }
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span id="submitText">' + (isSignUp ? 'Sign Up' : 'Log In') + '</span>';
+        btn.innerHTML = '<span id="submitText">' + (isResetMode ? 'Update Password' : isSignUp ? 'Sign Up' : 'Log In') + '</span>';
       }
     });
 
-    // Check URL params and redirect if already logged in
     document.addEventListener('DOMContentLoaded', async function() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('mode') === 'signup') setMode(true);
+      const { search, hash } = getAuthParams();
+      if (search.get('mode') === 'signup') setMode(true);
+
+      if (search.get('type') === 'recovery' || hash.get('type') === 'recovery') {
+        setResetMode();
+        showSuccess('Email verified. Set your new password.');
+      } else if (search.get('type') === 'signup' || hash.get('type') === 'signup') {
+        showSuccess('Email confirmed. You can log in now.');
+      }
 
       if (!initSupabase()) {
-        $('errorMsg').textContent = 'Supabase library not loaded. Reload the page.';
-        $('errorMsg').style.display = 'block';
-        return;
+        showError('Supabase library not loaded. Reload the page.');
       }
-      const user = await getUser().catch(() => null);
-      if (user) window.location.href = 'dashboard.html';
     });
   </script>
 </body>

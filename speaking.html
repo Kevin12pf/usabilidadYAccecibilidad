@@ -138,7 +138,7 @@
         return;
       }
 
-      const profile = await getProfile(currentUser.id);
+      let profile = await getProfile(currentUser.id);
       if (!profile) {
         profile = { full_name: currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
       }
