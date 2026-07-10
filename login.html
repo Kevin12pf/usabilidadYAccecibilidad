@@ -10,9 +10,11 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <nav class="navbar">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <header>
+  <nav class="navbar" aria-label="Main navigation">
     <a href="index.html" class="nav-brand">
-      <span class="brand-icon">EN</span>
+      <span class="brand-icon" aria-hidden="true">EN</span>
       English Up
     </a>
     <div class="nav-actions">
@@ -20,20 +22,22 @@
       <a href="login.html?mode=signup" class="btn btn-primary">Sign Up Free</a>
     </div>
   </nav>
+  </header>
 
+  <main id="main-content">
   <div class="auth-page">
     <div class="auth-container">
       <div class="auth-card">
         <div class="auth-header">
-          <div class="auth-icon">
+          <div class="auth-icon" aria-hidden="true">
             <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </div>
           <h1 id="authTitle">Welcome back</h1>
           <p id="authSubtitle">Log in to continue your English learning journey</p>
         </div>
 
-        <div id="errorMsg" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#EF4444;padding:12px;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;"></div>
-        <div id="successMsg" style="display:none;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10B981;padding:12px;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;"></div>
+        <div id="errorMsg" role="alert" aria-live="assertive" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#EF4444;padding:12px;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;"></div>
+        <div id="successMsg" role="status" aria-live="polite" style="display:none;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10B981;padding:12px;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;"></div>
 
         <form id="authForm">
           <div class="form-group" id="nameGroup" style="display:none;">
@@ -72,6 +76,7 @@
       </div>
     </div>
   </div>
+  </main>
 
   <script src="js/supabase.js"></script>
   <script src="js/supabase-config.js"></script>
@@ -230,7 +235,12 @@
           const result = await signIn(email, password);
           const user = result?.session?.user || await waitForAuthenticatedUser();
           if (!user) throw new Error('Login succeeded, but the user session was not ready. Try again.');
-          window.location.replace('dashboard.html');
+          const diagnosticDone = await hasCompletedDiagnostic(user.id);
+          if (!diagnosticDone) {
+            window.location.replace('diagnostic.html');
+          } else {
+            window.location.replace('dashboard.html');
+          }
         }
       } catch (err) {
         const message = (err.message || '').toLowerCase();

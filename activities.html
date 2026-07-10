@@ -10,65 +10,69 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <nav class="navbar" id="navbar">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <header>
+  <nav class="navbar" id="navbar" aria-label="Main navigation">
     <a href="index.html" class="nav-brand">
-      <span class="brand-icon">EN</span>
+      <span class="brand-icon" aria-hidden="true">EN</span>
       English Up
     </a>
     <ul class="nav-links">
       <li><a href="dashboard.html">Home</a></li>
-      <li><a href="activities.html" class="active">Activities</a></li>
+      <li><a href="activities.html" class="active" aria-current="page">Activities</a></li>
       <li><a href="progress.html">Progress</a></li>
       <li><a href="speaking.html">Speaking</a></li>
       <li><a href="grammar.html">Writing</a></li>
       <li><a href="reading.html">Reading</a></li>
     </ul>
     <div class="nav-actions">
-      <div class="nav-user" id="userMenu">
-        <div class="nav-user-avatar" id="userAvatar">--</div>
+      <div class="nav-user" id="userMenu" role="button" aria-label="User menu">
+        <div class="nav-user-avatar" id="userAvatar" aria-hidden="true">--</div>
         <span id="userName">Loading...</span>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="handleLogout()">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <button class="btn btn-ghost btn-sm" onclick="handleLogout()" aria-label="Log out">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </nav>
+  </header>
 
+  <main id="main-content">
   <div class="activities-page">
     <div class="activities-container">
-      <aside class="sidebar">
-        <p class="sidebar-title">Modules</p>
-        <ul class="sidebar-menu">
-          <li><a href="#" class="active" data-module="grammar" onclick="loadModule('grammar', this)">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      <aside class="sidebar" aria-label="Module navigation">
+        <p class="sidebar-title" id="modules-nav-title">Modules</p>
+        <ul class="sidebar-menu" aria-labelledby="modules-nav-title">
+          <li><a href="#" class="active" data-module="grammar" onclick="loadModule('grammar', this)" aria-current="true">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
             Grammar
           </a></li>
           <li><a href="#" data-module="vocabulary" onclick="loadModule('vocabulary', this)">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             Vocabulary
           </a></li>
           <li><a href="#" data-module="writing" onclick="loadModule('writing', this)">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Writing
           </a></li>
         </ul>
       </aside>
 
-      <main class="activity-main">
+      <div class="activity-main">
         <div class="activity-header">
           <h1 id="moduleTitle">Grammar Exercises</h1>
           <span style="color: var(--text-secondary);" id="questionCounter">Question 1 of 0</span>
         </div>
 
-        <div class="activity-content" id="exerciseContent">
+        <div class="activity-content" id="exerciseContent" aria-live="polite">
           <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
             <p>Loading exercises...</p>
           </div>
         </div>
 
-        <div class="stats-sidebar">
+        <div class="stats-sidebar" aria-label="Session statistics">
           <h3>
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
             Stats
           </h3>
           <div class="stat-row">
@@ -84,9 +88,9 @@
             <span class="stat-number" style="color: var(--primary);" id="practiceGrade">--</span>
           </div>
         </div>
-      </main>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script src="js/supabase.js"></script>
   <script src="js/supabase-config.js"></script>
@@ -98,11 +102,18 @@
     let currentIndex = 0;
     let correctAnswers = 0;
     let incorrectAnswers = 0;
+    let userLevel = 'A1';
 
     async function init() {
       currentUser = await getUser();
       if (!currentUser) {
         window.location.href = 'login.html';
+        return;
+      }
+
+      const diagnosticDone = await hasCompletedDiagnostic(currentUser.id);
+      if (!diagnosticDone) {
+        window.location.href = 'diagnostic.html';
         return;
       }
 
@@ -113,6 +124,7 @@
       const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : currentUser.email[0].toUpperCase();
       document.getElementById('userAvatar').textContent = initials;
       document.getElementById('userName').textContent = profile.full_name || currentUser.email;
+      userLevel = profile.level || 'A1';
 
       const params = new URLSearchParams(window.location.search);
       const moduleParam = params.get('module');
@@ -137,7 +149,7 @@
       document.getElementById('moduleTitle').textContent = titles[module] || 'Exercises';
 
       try {
-        exercises = await getExercises(module);
+        exercises = await getExercises(module, userLevel);
         if (exercises.length === 0) {
           document.getElementById('exerciseContent').innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-secondary);"><p>No exercises available yet for this module.</p></div>';
           document.getElementById('questionCounter').textContent = 'No exercises';
@@ -161,9 +173,9 @@
 
       let optionsHtml = '';
       if (options.length > 0) {
-        optionsHtml = '<div class="options-list">' + options.map((opt, i) =>
-          `<div class="option-item" data-value="${opt}" onclick="selectOption(this, '${opt.replace(/'/g, "\\'")}')">
-            <div class="option-radio"></div>
+        optionsHtml = '<div class="options-list" role="radiogroup" aria-label="Answer options">' + options.map((opt, i) =>
+          `<div class="option-item" role="radio" aria-checked="false" data-value="${opt}" onclick="selectOption(this, '${opt.replace(/'/g, "\\'")}')">
+            <div class="option-radio" aria-hidden="true"></div>
             <span class="option-text">${opt}</span>
           </div>`
         ).join('') + '</div>';
@@ -189,8 +201,12 @@
     }
 
     function selectOption(el, value) {
-      document.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+      document.querySelectorAll('.option-item').forEach(o => {
+        o.classList.remove('selected');
+        o.setAttribute('aria-checked', 'false');
+      });
       el.classList.add('selected');
+      el.setAttribute('aria-checked', 'true');
     }
 
     async function checkAnswer() {
@@ -217,7 +233,7 @@
 
       const feedbackArea = document.getElementById('feedbackArea');
       feedbackArea.innerHTML = `
-        <div class="feedback-box ${isCorrect ? 'correct' : 'incorrect'}" style="margin-top:1rem;">
+        <div class="feedback-box ${isCorrect ? 'correct' : 'incorrect'}" style="margin-top:1rem;" role="status" aria-live="polite">
           <div class="feedback-title">
             <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">${isCorrect
               ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'

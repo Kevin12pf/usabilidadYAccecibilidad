@@ -105,11 +105,29 @@ async function updateProfile(userId, updates) {
   return data;
 }
 
-async function getExercises(moduleName) {
+async function getExercises(moduleName, userLevel) {
   if (!_sb) initSupabase();
-  const { data, error } = await _sb.from('exercises').select('*').eq('module', moduleName).order('order_index');
+  let query = _sb.from('exercises').select('*').eq('module', moduleName).order('order_index');
+  if (userLevel) {
+    const difficulties = getDifficultiesForLevel(userLevel);
+    query = query.in('difficulty', difficulties);
+  }
+  let { data, error } = await query;
   if (error) throw error;
+  if ((!data || data.length === 0) && userLevel) {
+    const fallback = await _sb.from('exercises').select('*').eq('module', moduleName).order('order_index');
+    data = fallback.data || [];
+  }
   return data || [];
+}
+
+function getDifficultiesForLevel(level) {
+  const l = (level || 'A1').toUpperCase().replace('+', '');
+  if (l === 'A1' || l === 'A2') return ['easy'];
+  if (l === 'B1') return ['easy', 'medium'];
+  if (l === 'B1+' || l === 'B2') return ['medium', 'hard'];
+  if (l === 'C1' || l === 'C2') return ['hard'];
+  return ['easy'];
 }
 
 async function saveProgress(userId, exerciseId, isCorrect, userAnswer) {
@@ -176,6 +194,12 @@ async function getUserScores(userId) {
   const { data, error } = await _sb.from('scores').select('*').eq('user_id', userId).order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];
+}
+
+async function hasCompletedDiagnostic(userId) {
+  if (!_sb) initSupabase();
+  const { count } = await _sb.from('scores').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('module', 'diagnostic');
+  return (count || 0) > 0;
 }
 
 initSupabase();
