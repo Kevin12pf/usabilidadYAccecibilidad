@@ -135,6 +135,7 @@ body {
   padding: 6px 12px;
   border-radius: var(--radius-full);
   background: var(--bg-main);
+  border: 1px solid var(--border);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -1541,7 +1542,7 @@ body {
 
 .tips-box p {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: #475569;
   line-height: 1.6;
 }
 
