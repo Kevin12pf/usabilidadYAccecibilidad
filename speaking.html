@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Speaking - English Up</title>
+  <title>Speaking Practice - English Up</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -40,76 +40,84 @@
   <main id="main-content">
   <div class="speaking-page">
     <div class="speaking-container">
-      <div class="speaking-content">
+      <div class="speaking-content" style="text-align: left;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h1 style="font-size: 1.5rem; font-weight: 700;">Speaking</h1>
-          <span style="color: var(--text-secondary);" id="exerciseCounter">1/0</span>
+          <h1 style="font-size: 1.5rem; font-weight: 700;">Speaking Practice</h1>
+          <span style="color: var(--text-secondary); font-size: 0.9rem;" id="topicCounter" aria-label="Topic 1 of 0">1 / 0</span>
         </div>
 
-        <div class="instruction-box">
-          <h4>Speaking Exercise</h4>
-          <p>Read the sentence aloud and click the microphone. The browser will analyze your pronunciation in real time.</p>
+        <div class="instruction-box" role="region" aria-label="How this works">
+          <h3 style="font-size: 1rem;">Free Speaking Exercise</h3>
+          <p>You will be given a topic. Speak freely using the suggested structures. Click record, talk, then click stop. Your speech will be evaluated automatically.</p>
         </div>
 
-        <div class="sentence-display" id="sentenceDisplay" aria-label="Sentence to read aloud" role="region">
-          Loading...
+        <div class="question-card" id="topicCard" style="margin-bottom: 1.5rem;" role="region" aria-label="Current speaking topic" tabindex="-1">
+          <div class="question-number" id="topicNumber" aria-hidden="true">1</div>
+          <h2 style="margin-bottom: 0.75rem;" id="topicTitle">Loading...</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 1rem;" id="topicPrompt"></p>
+          <div style="background: var(--bg-main); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1rem;">
+            <p style="font-weight: 600; margin-bottom: 0.75rem; font-size: 0.9rem;">Try using these structures:</p>
+            <ul style="list-style: none; padding: 0;" id="structureList" aria-label="Suggested structures to include in your speech"></ul>
+          </div>
         </div>
 
-        <div class="recording-section">
-          <div class="mic-status">
-            <div class="mic-indicator">
+        <div class="recording-section" style="margin-bottom: 0;" role="region" aria-label="Recording controls">
+          <div class="mic-status" role="list" aria-label="Recording status steps">
+            <div class="mic-indicator" role="listitem">
               <div class="mic-dot idle" id="micReady">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/></svg>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/></svg>
               </div>
-              <span class="mic-label">Ready</span>
+              <span class="mic-label" id="micReadyLabel">Ready</span>
             </div>
-            <div class="mic-indicator">
+            <div class="mic-indicator" role="listitem">
               <div class="mic-dot" id="micRecording">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
               </div>
-              <span class="mic-label">Listening</span>
+              <span class="mic-label" id="micRecordingLabel">Listening</span>
             </div>
-            <div class="mic-indicator">
+            <div class="mic-indicator" role="listitem">
               <div class="mic-dot" id="micComplete">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
               </div>
-              <span class="mic-label">Complete</span>
+              <span class="mic-label" id="micCompleteLabel">Complete</span>
             </div>
-            <div class="mic-indicator">
+            <div class="mic-indicator" role="listitem">
               <div class="mic-dot" id="micAnalyzing">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
-              <span class="mic-label">Analyzing</span>
+              <span class="mic-label" id="micAnalyzingLabel">Analyzing</span>
             </div>
           </div>
 
-          <button class="record-btn" id="recordBtn" onclick="toggleRecording()" aria-label="Start recording">
-            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-          </button>
-          <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;" id="recordLabel">Click to start recording</p>
+          <div id="screenReaderAnnounce" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+          <div style="text-align: center;">
+            <button class="record-btn" id="recordBtn" onclick="toggleRecording()" aria-label="Start recording">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            </button>
+            <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;" id="recordLabel" aria-live="polite" aria-atomic="true">Click to start recording</p>
+          </div>
         </div>
 
-        <div class="pronunciation-score" id="scoreSection" style="display: none;" aria-live="polite">
-          <div class="score-value" id="scoreValue">0%</div>
-          <div class="score-label">Pronunciation Accuracy</div>
+        <div class="pronunciation-score" id="scoreSection" style="display: none;" role="status" aria-live="polite" aria-atomic="true">
+          <div class="score-value" id="scoreValue" role="text" aria-label="Score">0%</div>
+          <div class="score-label">Speaking Score</div>
         </div>
 
-        <div class="tips-box" id="tipBox" role="region" aria-label="Pronunciation tip">
-          <h4>
+        <div class="tips-box" id="feedbackBox" role="region" aria-label="Feedback">
+          <h3 style="font-size: 0.95rem;">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            Pronunciation Tip
-          </h4>
-          <p id="tipText">Focus on clear pronunciation and natural sentence rhythm.</p>
+            Feedback
+          </h3>
+          <div id="feedbackContent" aria-live="polite" aria-atomic="true">
+            <p id="feedbackText">Record yourself speaking about the topic. Try to use the suggested structures.</p>
+          </div>
         </div>
 
         <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-          <button class="btn btn-ghost" onclick="listenExample()" style="flex: 1;" aria-label="Listen to example pronunciation">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
-            Listen to example
-          </button>
-          <button class="btn btn-primary" onclick="nextExercise()" style="flex: 1;">
-            Next exercise
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <button class="btn btn-primary" onclick="nextTopic()" style="flex: 1;" aria-label="Load next speaking topic">
+            Next Topic
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
       </div>
@@ -121,19 +129,161 @@
   <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
   <script>
-    let currentUser = null;
-    let exercises = [];
-    let currentIndex = 0;
-    let isRecording = false;
-    let liveTranscript = '';
+    var currentUser = null;
+    var currentIndex = 0;
+    var isRecording = false;
+    var liveTranscript = '';
+    var announceTimeout = null;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognition = null;
     if (SpeechRecognition) {
       recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
+    }
+
+    var topics = [
+      {
+        id: 'family', level: 'A1',
+        title: 'Talk About Your Family',
+        prompt: 'Describe your family. Talk about who lives with you, their personalities, and what you enjoy doing together.',
+        structures: [
+          { phrase: 'There are ___ people in my family', keywords: ['there are', 'there is', 'there\'s'] },
+          { phrase: 'My mother / father / parents are ___', keywords: ['mother', 'father', 'parent', 'mom', 'dad'] },
+          { phrase: 'I have ___ brother(s) / sister(s)', keywords: ['brother', 'sister', 'sibling'] },
+          { phrase: 'We like / love to ___ together', keywords: ['we like', 'we love', 'together', 'we enjoy'] },
+          { phrase: 'My ___ is very ___', keywords: ['is very', 'is really', 'are very', 'is so'] }
+        ],
+        minWords: 30
+      },
+      {
+        id: 'hobbies', level: 'A1',
+        title: 'Talk About Your Hobbies',
+        prompt: 'What do you like to do in your free time? Talk about your hobbies, how often you do them, and why you enjoy them.',
+        structures: [
+          { phrase: 'In my free time, I ___', keywords: ['in my free time', 'my free time', 'after work', 'on weekends'] },
+          { phrase: 'I like / love / enjoy ___', keywords: ['i like', 'i love', 'i enjoy', 'i really like'] },
+          { phrase: 'I usually ___ on ___', keywords: ['usually', 'sometimes', 'often', 'every'] },
+          { phrase: 'It is ___ because ___', keywords: ['because', 'it is', 'it\'s so', 'it makes me'] },
+          { phrase: 'I have been ___ for ___', keywords: ['for', 'years', 'since', 'have been'] }
+        ],
+        minWords: 35
+      },
+      {
+        id: 'routine', level: 'A1',
+        title: 'Talk About Your Daily Routine',
+        prompt: 'Describe a typical day in your life. What do you do in the morning, afternoon, and evening?',
+        structures: [
+          { phrase: 'I wake up at ___', keywords: ['wake up', 'get up', 'i wake', 'i get up'] },
+          { phrase: 'I have breakfast / lunch / dinner', keywords: ['breakfast', 'lunch', 'dinner', 'have breakfast', 'eat'] },
+          { phrase: 'I go to ___', keywords: ['i go to', 'i go', 'i go to work', 'i go to school'] },
+          { phrase: 'After that, I ___', keywords: ['after that', 'then', 'after', 'next'] },
+          { phrase: 'In the evening, I ___', keywords: ['evening', 'at night', 'come home', 'go home'] }
+        ],
+        minWords: 40
+      },
+      {
+        id: 'vacation', level: 'A2',
+        title: 'Talk About a Vacation',
+        prompt: 'Tell me about a vacation or trip you remember. Where did you go? What did you do? Did you enjoy it?',
+        structures: [
+          { phrase: 'I went to ___', keywords: ['i went to', 'i went', 'we went', 'we traveled'] },
+          { phrase: 'I visited ___', keywords: ['i visited', 'we visited', 'saw', 'we saw'] },
+          { phrase: 'The weather was ___', keywords: ['weather', 'sunny', 'rainy', 'beautiful', 'hot', 'cold'] },
+          { phrase: 'I stayed there for ___', keywords: ['stayed', 'for', 'days', 'weeks', 'were there'] },
+          { phrase: 'It was a ___ experience', keywords: ['was a', 'it was', 'amazing', 'wonderful', 'great', 'fantastic'] }
+        ],
+        minWords: 45
+      },
+      {
+        id: 'job', level: 'A2',
+        title: 'Talk About Your Job or Studies',
+        prompt: 'Describe your job or what you study. What do you do? What do you like about it? What are the challenges?',
+        structures: [
+          { phrase: 'I work as / I study ___', keywords: ['i work', 'i study', 'i am a', 'i am an'] },
+          { phrase: 'My job / studies involve(s) ___', keywords: ['my job', 'my work', 'my studies', 'my major', 'i do'] },
+          { phrase: 'I have been working / studying for ___', keywords: ['been working', 'been studying', 'for', 'years'] },
+          { phrase: 'What I like most is ___', keywords: ['like most', 'love about', 'enjoy about', 'best part'] },
+          { phrase: 'The biggest challenge is ___', keywords: ['challenge', 'difficult', 'hard part', 'struggle'] }
+        ],
+        minWords: 50
+      },
+      {
+        id: 'city', level: 'A2',
+        title: 'Talk About Your City or Neighborhood',
+        prompt: 'Describe the city or neighborhood where you live. What places are there? What do you like about it? What would you change?',
+        structures: [
+          { phrase: 'I live in ___', keywords: ['i live in', 'i live', 'i\'m from', 'i am from'] },
+          { phrase: 'There is / are ___', keywords: ['there is', 'there are', 'there\'s', 'has a', 'has an'] },
+          { phrase: 'The best thing about ___', keywords: ['best thing', 'i like about', 'what i love', 'my favorite'] },
+          { phrase: 'You can ___', keywords: ['you can', 'you can go', 'can find', 'you can visit'] },
+          { phrase: 'One problem is ___', keywords: ['problem', 'don\'t like', 'wish there was', 'traffic', 'noisy'] }
+        ],
+        minWords: 45
+      },
+      {
+        id: 'future', level: 'B1',
+        title: 'Talk About Your Future Plans',
+        prompt: 'What are your plans for the future? Talk about your career, travel, personal goals, or dreams you want to achieve.',
+        structures: [
+          { phrase: 'I am going to ___', keywords: ['going to', 'gonna', 'plan to', 'planning to'] },
+          { phrase: 'I would like to ___', keywords: ['would like to', 'i\'d like to', 'i hope to', 'i want to'] },
+          { phrase: 'In five years, I ___', keywords: ['in five years', 'in the future', 'next year', 'in ten years'] },
+          { phrase: 'I hope that ___', keywords: ['i hope', 'i wish', 'hopefully', 'i dream'] },
+          { phrase: 'First I need to ___', keywords: ['first i need', 'before that', 'first i have to', 'need to'] }
+        ],
+        minWords: 55
+      },
+      {
+        id: 'friend', level: 'A2',
+        title: 'Describe Your Best Friend',
+        prompt: 'Tell me about your best friend. How did you meet? What is their personality like? What do you do together?',
+        structures: [
+          { phrase: 'My best friend is ___', keywords: ['best friend', 'my friend', 'close friend'] },
+          { phrase: 'We met ___', keywords: ['we met', 'met in', 'met at', 'known each other'] },
+          { phrase: 'She / He is very ___', keywords: ['is very', 'is really', 'is so', 'very kind', 'very funny'] },
+          { phrase: 'We like to ___ together', keywords: ['we like to', 'we love to', 'we enjoy', 'together'] },
+          { phrase: 'I admire ___ because ___', keywords: ['admire', 'respect', 'look up to', 'always there'] }
+        ],
+        minWords: 40
+      },
+      {
+        id: 'technology', level: 'B1',
+        title: 'Talk About Technology in Your Life',
+        prompt: 'How do you use technology every day? Talk about your phone, computer, social media, and how technology has changed your habits.',
+        structures: [
+          { phrase: 'I use my phone / computer for ___', keywords: ['use my', 'my phone', 'my computer', 'i use'] },
+          { phrase: 'Social media helps me ___', keywords: ['social media', 'instagram', 'facebook', 'whatsapp', 'tiktok'] },
+          { phrase: 'On one hand ___, but on the other ___', keywords: ['on one hand', 'on the other hand', 'however', 'although'] },
+          { phrase: 'Technology has changed ___', keywords: ['has changed', 'changed the way', 'made it easier'] },
+          { phrase: 'Without my phone, I ___', keywords: ['without', 'can\'t imagine', 'would be', 'is hard'] }
+        ],
+        minWords: 55
+      },
+      {
+        id: 'opinion', level: 'B1',
+        title: 'Give Your Opinion on Education',
+        prompt: 'What do you think about the education system? Talk about online learning, the subjects that matter most, or how schools could improve.',
+        structures: [
+          { phrase: 'In my opinion, ___', keywords: ['in my opinion', 'i think', 'i believe', 'personally'] },
+          { phrase: 'I agree / disagree that ___', keywords: ['i agree', 'i disagree', 'i think that', 'i don\'t think'] },
+          { phrase: 'One advantage is ___', keywords: ['advantage', 'benefit', 'positive', 'good thing'] },
+          { phrase: 'However, one disadvantage ___', keywords: ['however', 'disadvantage', 'negative', 'bad thing', 'on the other'] },
+          { phrase: 'For example, ___', keywords: ['for example', 'for instance', 'such as', 'like'] }
+        ],
+        minWords: 60
+      }
+    ];
+
+    function announceToScreenReader(text) {
+      var el = document.getElementById('screenReaderAnnounce');
+      if (announceTimeout) clearTimeout(announceTimeout);
+      el.textContent = '';
+      announceTimeout = setTimeout(function() {
+        el.textContent = text;
+      }, 100);
     }
 
     async function init() {
@@ -143,59 +293,95 @@
         return;
       }
 
-      const diagnosticDone = await hasCompletedDiagnostic(currentUser.id);
+      var diagnosticDone = await hasCompletedDiagnostic(currentUser.id);
       if (!diagnosticDone) {
         window.location.href = 'diagnostic.html';
         return;
       }
 
-      let profile = await getProfile(currentUser.id);
+      var profile = await getProfile(currentUser.id);
       if (!profile) {
         profile = { full_name: currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
       }
-      const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : currentUser.email[0].toUpperCase();
+      window._userLevel = profile.level || 'A1';
+      var initials = profile.full_name ? profile.full_name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase() : currentUser.email[0].toUpperCase();
       document.getElementById('userAvatar').textContent = initials;
       document.getElementById('userName').textContent = profile.full_name || currentUser.email;
 
-      try {
-        exercises = await getExercises('speaking', profile.level);
-        if (exercises.length === 0) {
-          document.getElementById('sentenceDisplay').textContent = 'No speaking exercises available yet.';
-          return;
-        }
-        renderExercise();
-      } catch (error) {
-        console.error('Error loading speaking exercises:', error);
-      }
+      renderTopic();
     }
 
-    function renderExercise() {
-      if (currentIndex >= exercises.length) {
-        document.getElementById('sentenceDisplay').textContent = 'All exercises completed! Great job!';
-        document.getElementById('exerciseCounter').textContent = 'Complete';
-        return;
+    function getFilteredTopics() {
+      var userLevel = window._userLevel || 'A1';
+      var order = ['A1','A2','B1','B1+','B2','C1','C2'];
+      var uIdx = order.indexOf(userLevel);
+      if (uIdx === -1) return topics;
+      return topics.filter(function(t) {
+        var tIdx = order.indexOf(t.level);
+        return tIdx <= uIdx + 1;
+      });
+    }
+
+    function renderTopic() {
+      var filtered = getFilteredTopics();
+      if (currentIndex >= filtered.length) {
+        currentIndex = 0;
       }
 
-      const ex = exercises[currentIndex];
-      document.getElementById('exerciseCounter').textContent = (currentIndex + 1) + '/' + exercises.length;
-      document.getElementById('sentenceDisplay').textContent = ex.question.replace('Read aloud: ', '').replace(/"/g, '');
+      var topic = filtered[currentIndex];
+      var total = filtered.length;
+
+      document.getElementById('topicCounter').textContent = (currentIndex + 1) + ' / ' + total;
+      document.getElementById('topicCounter').setAttribute('aria-label', 'Topic ' + (currentIndex + 1) + ' of ' + total);
+      document.getElementById('topicNumber').textContent = '' + (currentIndex + 1);
+      document.getElementById('topicTitle').textContent = topic.title;
+      document.getElementById('topicPrompt').textContent = topic.prompt;
+
+      var list = document.getElementById('structureList');
+      list.innerHTML = '';
+      for (var i = 0; i < topic.structures.length; i++) {
+        var li = document.createElement('li');
+        li.style.cssText = 'padding: 6px 0; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;';
+        var bullet = document.createElement('span');
+        bullet.style.color = 'var(--primary)';
+        bullet.setAttribute('aria-hidden', 'true');
+        bullet.textContent = '\u2022';
+        var text = document.createElement('span');
+        text.style.color = 'var(--text-primary)';
+        text.textContent = topic.structures[i].phrase;
+        li.appendChild(bullet);
+        li.appendChild(text);
+        list.appendChild(li);
+      }
 
       document.getElementById('scoreSection').style.display = 'none';
-      document.getElementById('tipText').textContent = ex.explanation || 'Focus on clear pronunciation and natural sentence rhythm.';
-
+      document.getElementById('scoreSection').setAttribute('aria-hidden', 'true');
+      document.getElementById('feedbackContent').innerHTML = '<p id="feedbackText">Record yourself speaking about the topic. Try to use the suggested structures.</p>';
       resetMicStatus();
+      document.getElementById('recordLabel').textContent = 'Click to start recording';
+
+      var card = document.getElementById('topicCard');
+      card.focus();
+      announceToScreenReader('Topic ' + (currentIndex + 1) + ' of ' + total + '. ' + topic.title + '. ' + topic.prompt);
     }
 
     function resetMicStatus() {
-      document.getElementById('micReady').className = 'mic-dot idle';
+      var ready = document.getElementById('micReady');
+      ready.className = 'mic-dot idle';
+      ready.setAttribute('aria-current', 'step');
       document.getElementById('micRecording').className = 'mic-dot';
+      document.getElementById('micRecording').removeAttribute('aria-current');
       document.getElementById('micComplete').className = 'mic-dot';
+      document.getElementById('micComplete').removeAttribute('aria-current');
       document.getElementById('micAnalyzing').className = 'mic-dot';
+      document.getElementById('micAnalyzing').removeAttribute('aria-current');
     }
 
     function toggleRecording() {
       if (!recognition) {
-        alert('Speech Recognition is not supported in this browser.\n\nPlease use Google Chrome or Microsoft Edge for pronunciation analysis.');
+        var msg = 'Speech Recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.';
+        announceToScreenReader(msg);
+        alert(msg);
         return;
       }
 
@@ -207,9 +393,14 @@
         document.getElementById('recordBtn').classList.add('recording');
         document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
         document.getElementById('recordBtn').setAttribute('aria-label', 'Stop recording');
-        document.getElementById('recordLabel').textContent = 'Listening... Speak now, then click to stop';
+        document.getElementById('recordLabel').textContent = 'Listening. Speak now, then press Stop to finish.';
         document.getElementById('micReady').className = 'mic-dot active';
+        document.getElementById('micReady').setAttribute('aria-current', 'step');
+
         document.getElementById('micRecording').className = 'mic-dot recording';
+        document.getElementById('micRecording').setAttribute('aria-current', 'step');
+
+        announceToScreenReader('Recording started. Speak now. Press the Stop button when you are finished.');
       } else {
         stopRecognition();
         isRecording = false;
@@ -217,11 +408,16 @@
         document.getElementById('recordBtn').classList.remove('recording');
         document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>';
         document.getElementById('recordBtn').setAttribute('aria-label', 'Start recording');
-        document.getElementById('recordLabel').textContent = 'Analyzing pronunciation...';
-        document.getElementById('micRecording').className = 'mic-dot';
-        document.getElementById('micAnalyzing').className = 'mic-dot pending';
+        document.getElementById('recordLabel').textContent = 'Analyzing your speech...';
 
-        setTimeout(function() { analyzeRecording(); }, 500);
+        document.getElementById('micRecording').className = 'mic-dot';
+        document.getElementById('micRecording').removeAttribute('aria-current');
+        document.getElementById('micAnalyzing').className = 'mic-dot pending';
+        document.getElementById('micAnalyzing').setAttribute('aria-current', 'step');
+
+        announceToScreenReader('Recording stopped. Analyzing your speech.');
+
+        setTimeout(function() { analyzeSpeaking(); }, 500);
       }
     }
 
@@ -235,15 +431,13 @@
             interim += event.results[i][0].transcript;
           }
         }
-        if (interim) {
-          document.getElementById('recordLabel').textContent = 'Hearing: ' + interim;
-        }
       };
 
       recognition.onerror = function(event) {
-        console.log('Recognition error:', event.error);
         if (event.error === 'not-allowed') {
-          alert('Microphone access was denied. Please allow microphone access and try again.');
+          var msg = 'Microphone access was denied. Please allow microphone access in your browser settings, then try again.';
+          announceToScreenReader(msg);
+          alert(msg);
           isRecording = false;
           document.getElementById('recordBtn').classList.remove('recording');
           document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>';
@@ -259,11 +453,7 @@
         }
       };
 
-      try {
-        recognition.start();
-      } catch(e) {
-        console.error('Failed to start recognition:', e);
-      }
+      try { recognition.start(); } catch(e) {}
     }
 
     function stopRecognition() {
@@ -271,103 +461,101 @@
       try { recognition.stop(); } catch(e) {}
     }
 
-    async function analyzeRecording() {
+    function analyzeSpeaking() {
       document.getElementById('micAnalyzing').className = 'mic-dot pending';
-      document.getElementById('recordLabel').textContent = 'Analyzing pronunciation...';
 
-      var expected = exercises[currentIndex].question.replace('Read aloud: ', '').replace(/"/g, '');
+      var transcript = liveTranscript.trim();
+      var words = transcript ? transcript.split(/\s+/) : [];
+      var wordCount = words.length;
 
-      try {
-        var score = calculateScore(liveTranscript, expected);
-        displayResults(score, liveTranscript, expected);
+      var filtered = getFilteredTopics();
+      var topic = filtered[currentIndex];
+      var transcriptLower = transcript.toLowerCase();
 
-        var ex = exercises[currentIndex];
-        await saveProgress(currentUser.id, ex.id, score >= 70, 'pronunciation_' + score);
-        await updateStreak(currentUser.id);
-      } catch (err) {
-        console.error('Analysis error:', err);
-        document.getElementById('micAnalyzing').className = 'mic-dot';
-        document.getElementById('micComplete').className = 'mic-dot active';
-        document.getElementById('recordLabel').textContent = 'Could not analyze. Try again.';
-      }
-    }
+      var foundCount = 0;
+      var results = [];
 
-    function calculateScore(transcript, expected) {
-      var normalize = function(s) { return s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim(); };
-      var t = normalize(transcript);
-      var e = normalize(expected);
-
-      if (!t) return 0;
-      if (t === e) return 100;
-
-      var distance = levenshtein(t, e);
-      var maxLen = Math.max(t.length, e.length);
-      return Math.round(((maxLen - distance) / maxLen) * 100);
-    }
-
-    function levenshtein(a, b) {
-      var matrix = [];
-      for (var i = 0; i <= a.length; i++) {
-        matrix[i] = [];
-        for (var j = 0; j <= b.length; j++) {
-          if (i === 0) { matrix[i][j] = j; }
-          else if (j === 0) { matrix[i][j] = i; }
-          else {
-            var cost = a[i-1] === b[j-1] ? 0 : 1;
-            matrix[i][j] = Math.min(
-              matrix[i-1][j] + 1,
-              matrix[i][j-1] + 1,
-              matrix[i-1][j-1] + cost
-            );
+      for (var s = 0; s < topic.structures.length; s++) {
+        var matched = false;
+        for (var k = 0; k < topic.structures[s].keywords.length; k++) {
+          if (transcriptLower.indexOf(topic.structures[s].keywords[k].toLowerCase()) !== -1) {
+            matched = true;
+            break;
           }
         }
+        if (matched) {
+          foundCount++;
+          results.push({ phrase: topic.structures[s].phrase, found: true });
+        } else {
+          results.push({ phrase: topic.structures[s].phrase, found: false });
+        }
       }
-      return matrix[a.length][b.length];
+
+      var structureScore = topic.structures.length > 0 ? (foundCount / topic.structures.length) * 60 : 0;
+      var lengthScore = wordCount >= topic.minWords ? 30 : Math.round((wordCount / topic.minWords) * 30);
+      var bonus = wordCount >= topic.minWords * 1.5 ? 10 : 0;
+      var totalScore = Math.min(Math.round(structureScore + lengthScore + bonus), 100);
+
+      displayResults(totalScore, transcript, wordCount, results, topic, foundCount);
+
+      saveProgress(currentUser.id, topic.id, totalScore >= 60, 'speaking_' + totalScore).catch(function() {});
+      updateStreak(currentUser.id).catch(function() {});
     }
 
-    function displayResults(score, transcript, expected) {
+    function displayResults(score, transcript, wordCount, results, topic, foundCount) {
       var color = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--warning)' : 'var(--danger)';
-
-      var expectedWords = expected.split(/\s+/);
-      var transcriptWords = (transcript || '').split(/\s+/).map(function(w) {
-        return w.toLowerCase().replace(/[^a-z]/g, '');
-      });
-
-      var wordFeedback = expectedWords.map(function(word) {
-        var clean = word.toLowerCase().replace(/[^a-z]/g, '');
-        var found = transcriptWords.indexOf(clean) !== -1;
-        return '<span style="color:' + (found ? 'var(--success)' : 'var(--danger)') + ';font-weight:600;">' + word + '</span>';
-      }).join(' ');
+      var gradeText = score >= 80 ? 'Excellent' : score >= 60 ? 'Good effort' : score < 40 ? 'Keep practicing' : 'Not bad';
 
       document.getElementById('micAnalyzing').className = 'mic-dot';
+      document.getElementById('micAnalyzing').removeAttribute('aria-current');
       document.getElementById('micComplete').className = 'mic-dot active';
-      document.getElementById('recordLabel').textContent = 'Recording complete!';
+      document.getElementById('micComplete').setAttribute('aria-current', 'step');
+      document.getElementById('recordLabel').textContent = 'Analysis complete!';
 
-      document.getElementById('scoreSection').style.display = 'block';
+      var scoreSection = document.getElementById('scoreSection');
+      scoreSection.style.display = 'block';
+      scoreSection.removeAttribute('aria-hidden');
       document.getElementById('scoreValue').textContent = score + '%';
       document.getElementById('scoreValue').style.color = color;
+      document.getElementById('scoreValue').setAttribute('aria-label', 'Score ' + score + ' percent. ' + gradeText + '.');
 
-      document.getElementById('tipText').innerHTML =
-        '<strong>You said:</strong> "' + (transcript || 'No speech detected') + '"<br><br>' +
-        '<strong>Expected words:</strong><br>' + wordFeedback;
-    }
-
-    function listenExample() {
-      if ('speechSynthesis' in window && currentIndex < exercises.length) {
-        var utterance = new SpeechSynthesisUtterance(
-          document.getElementById('sentenceDisplay').textContent
-        );
-        utterance.lang = 'en-US';
-        utterance.rate = 0.9;
-        speechSynthesis.speak(utterance);
-      } else {
-        alert('Text-to-speech is not supported in your browser.');
+      var structureHtml = '';
+      var structureText = '';
+      for (var r = 0; r < results.length; r++) {
+        var icon = results[r].found ? '\u2713' : '\u2717';
+        var iconLabel = results[r].found ? 'Used' : 'Not used';
+        var itemColor = results[r].found ? 'var(--success)' : 'var(--text-secondary)';
+        structureHtml += '<li style="padding: 6px 0; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">' +
+          '<span style="color: ' + itemColor + '; font-weight: bold;" role="img" aria-label="' + iconLabel + '">' + icon + '</span>' +
+          '<span class="sr-only">' + iconLabel + ': </span>' +
+          '<span style="color: ' + itemColor + ';">' + results[r].phrase + '</span></li>';
+        structureText += '\n' + iconLabel + ': ' + results[r].phrase;
       }
+
+      var displayTranscript = transcript || 'No speech detected';
+
+      document.getElementById('feedbackContent').innerHTML =
+        '<p style="font-weight: 600; margin-bottom: 0.75rem;">' + gradeText + '! Score: ' + score + '%</p>' +
+        '<p><strong>Words spoken:</strong> ' + wordCount + ' (aim for ' + topic.minWords + ')</p>' +
+        '<p><strong>Structures used:</strong> ' + foundCount + ' of ' + topic.structures.length + '</p>' +
+        '<div style="margin-top: 0.75rem;"><p style="font-weight: 600; margin-bottom: 0.5rem;">What you said:</p>' +
+        '<p style="background: var(--bg-main); padding: 0.75rem; border-radius: var(--radius-md); font-style: italic;" aria-label="Your recorded speech">"' +
+        displayTranscript + '"</p></div>' +
+        '<div style="margin-top: 0.75rem;"><p style="font-weight: 600; margin-bottom: 0.5rem;">Structures:</p>' +
+        '<ul style="list-style: none; padding: 0;" aria-label="Structure usage results">' + structureHtml + '</ul></div>';
+
+      var announceText = 'Analysis complete. Score ' + score + ' percent. ' + gradeText + '. You spoke ' + wordCount + ' words. You used ' + foundCount + ' of ' + topic.structures.length + ' suggested structures.';
+      announceToScreenReader(announceText);
     }
 
-    function nextExercise() {
-      currentIndex++;
-      renderExercise();
+    function nextTopic() {
+      var filtered = getFilteredTopics();
+      if (currentIndex < filtered.length - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0;
+      }
+      renderTopic();
     }
 
     async function handleLogout() {

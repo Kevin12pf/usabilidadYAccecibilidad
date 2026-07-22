@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grammar - English Up</title>
+  <title>Writing Practice - English Up</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,6 +23,7 @@
       <li><a href="progress.html">Progress</a></li>
       <li><a href="speaking.html">Speaking</a></li>
       <li><a href="grammar.html" class="active" aria-current="page">Writing</a></li>
+      <li><a href="reading.html">Reading</a></li>
     </ul>
     <div class="nav-actions">
       <div class="nav-user" id="userMenu" role="button" aria-label="User menu">
@@ -51,8 +52,8 @@
 
       <div class="activity-main">
         <div class="activity-header">
-          <h1>Writing — B1</h1>
-          <span style="color: var(--text-secondary);" id="questionCounter">Question 1 of 0</span>
+          <h1>Writing Practice</h1>
+          <span style="color: var(--text-secondary);" id="questionCounter" aria-live="polite">Question 1 of 0</span>
         </div>
 
         <div class="activity-content" id="exerciseContent" aria-live="polite">
@@ -60,6 +61,8 @@
             <p>Loading exercises...</p>
           </div>
         </div>
+
+        <div id="screenReaderAnnounce" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
         <div class="stats-sidebar" aria-label="Session statistics">
           <h3>
@@ -91,30 +94,30 @@
   <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
   <script>
-    let currentUser = null;
-    let exercises = [];
-    let currentIndex = 0;
-    let correctAnswers = 0;
-    let incorrectAnswers = 0;
+    var currentUser = null;
+    var exercises = [];
+    var currentIndex = 0;
+    var correctAnswers = 0;
+    var incorrectAnswers = 0;
+    var announceTimeout = null;
+
+    function announce(text) {
+      var el = document.getElementById('screenReaderAnnounce');
+      if (announceTimeout) clearTimeout(announceTimeout);
+      el.textContent = '';
+      announceTimeout = setTimeout(function() { el.textContent = text; }, 100);
+    }
 
     async function init() {
       currentUser = await getUser();
-      if (!currentUser) {
-        window.location.href = 'login.html';
-        return;
-      }
+      if (!currentUser) { window.location.href = 'login.html'; return; }
 
-      const diagnosticDone = await hasCompletedDiagnostic(currentUser.id);
-      if (!diagnosticDone) {
-        window.location.href = 'diagnostic.html';
-        return;
-      }
+      var diagnosticDone = await hasCompletedDiagnostic(currentUser.id);
+      if (!diagnosticDone) { window.location.href = 'diagnostic.html'; return; }
 
-      let profile = await getProfile(currentUser.id);
-      if (!profile) {
-        profile = { full_name: currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
-      }
-      const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : currentUser.email[0].toUpperCase();
+      var profile = await getProfile(currentUser.id);
+      if (!profile) profile = { full_name: currentUser.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
+      var initials = profile.full_name ? profile.full_name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase() : currentUser.email[0].toUpperCase();
       document.getElementById('userAvatar').textContent = initials;
       document.getElementById('userName').textContent = profile.full_name || currentUser.email;
 
@@ -125,99 +128,117 @@
           return;
         }
         renderExercise();
-      } catch (error) {
-        console.error('Error loading writing exercises:', error);
+      } catch (error) { console.error('Error loading writing exercises:', error); }
+    }
+
+    function normalizeAnswer(str) {
+      return str.trim().replace(/\s+/g, ' ').replace(/[^a-zA-Z0-9\s'-]/g, '').toLowerCase();
+    }
+
+    function isAnswerCorrect(userAnswer, correctAnswer) {
+      var normalized = normalizeAnswer(userAnswer);
+      var correct = normalizeAnswer(correctAnswer);
+      if (normalized === correct) return true;
+      var normWords = normalized.split(/\s+/);
+      var correctWords = correct.split(/\s+/);
+      if (normWords.length === 1 && correctWords.length >= 3) {
+        return normWords[0] === correctWords[0] || normWords[0] === correctWords[correctWords.length - 1];
       }
+      if (correctWords.length >= 3) {
+        var matchCount = 0;
+        for (var i = 0; i < correctWords.length; i++) {
+          for (var j = 0; j < normWords.length; j++) {
+            if (normWords[j] === correctWords[i]) { matchCount++; break; }
+          }
+        }
+        if (matchCount >= Math.ceil(correctWords.length * 0.6)) return true;
+      }
+      return false;
     }
 
     function renderExercise() {
-      if (currentIndex >= exercises.length) {
-        showResults();
-        return;
-      }
+      if (currentIndex >= exercises.length) { showResults(); return; }
 
-      const ex = exercises[currentIndex];
-      const options = ex.options || [];
-      document.getElementById('questionCounter').textContent = `Question ${currentIndex + 1} of ${exercises.length}`;
+      var ex = exercises[currentIndex];
+      document.getElementById('questionCounter').textContent = 'Question ' + (currentIndex + 1) + ' of ' + exercises.length;
+      document.getElementById('questionCounter').setAttribute('aria-label', 'Question ' + (currentIndex + 1) + ' of ' + exercises.length);
       document.getElementById('sessionTotal').textContent = currentIndex + 1;
 
-      let optionsHtml = '';
-      if (options.length > 0) {
-        optionsHtml = '<div class="options-list" role="radiogroup" aria-label="Answer options">' + options.map((opt, i) =>
-          `<div class="option-item" role="radio" aria-checked="false" data-value="${opt}" onclick="selectOption(this, '${opt.replace(/'/g, "\\'")}')">
-            <div class="option-radio" aria-hidden="true"></div>
-            <span class="option-text">${opt}</span>
-          </div>`
-        ).join('') + '</div>';
-      }
+      document.getElementById('exerciseContent').innerHTML =
+        '<div class="question-card fade-in" role="region" aria-label="Exercise ' + (currentIndex + 1) + '" tabindex="-1" id="questionCard">' +
+          '<div class="question-number">Question ' + (currentIndex + 1) + ' of ' + exercises.length + '</div>' +
+          '<div class="question-text" id="questionText">' + ex.question + '</div>' +
+          '<div style="margin-top: 1.5rem;">' +
+            '<label for="answerInput" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Type your answer:</label>' +
+            '<input type="text" id="answerInput" name="answer" autocomplete="off" spellcheck="true" ' +
+              'style="width: 100%; padding: 0.85rem 1rem; font-size: 1rem; border: 2px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); color: var(--text-primary); transition: border-color 0.2s;" ' +
+              'placeholder="Write your answer here..." aria-describedby="questionText">' +
+          '</div>' +
+        '</div>' +
+        '<div id="feedbackArea" role="status" aria-live="polite" aria-atomic="true"></div>' +
+        '<div style="display: flex; gap: 1rem; margin-top: 1.5rem;">' +
+          '<button class="btn btn-ghost" onclick="prevExercise()" ' + (currentIndex === 0 ? 'disabled' : '') + ' style="flex:1;" aria-label="Previous exercise">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>' +
+            ' Previous' +
+          '</button>' +
+          '<button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()" style="flex:2;">Check Answer</button>' +
+        '</div>';
 
-      document.getElementById('exerciseContent').innerHTML = `
-        <div class="question-card fade-in">
-          <div class="question-number">Question ${currentIndex + 1} of ${exercises.length}</div>
-          <div class="question-text">${ex.question}</div>
-          ${optionsHtml}
-        </div>
-        <div id="feedbackArea"></div>
-        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-            <button class="btn btn-ghost" onclick="prevExercise()" ${currentIndex === 0 ? 'disabled' : ''} style="flex:1;" aria-label="Previous exercise">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Previous
-          </button>
-          <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()" style="flex:2;">
-            Check Answer
-          </button>
-        </div>
-      `;
-    }
-
-    function selectOption(el, value) {
-      document.querySelectorAll('.option-item').forEach(o => {
-        o.classList.remove('selected');
-        o.setAttribute('aria-checked', 'false');
+      var input = document.getElementById('answerInput');
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          checkAnswer();
+        }
       });
-      el.classList.add('selected');
-      el.setAttribute('aria-checked', 'true');
+      input.focus();
     }
 
     async function checkAnswer() {
-      const selected = document.querySelector('.option-item.selected');
-      if (!selected) return;
+      var input = document.getElementById('answerInput');
+      if (!input) return;
+      var userAnswer = input.value.trim();
+      if (!userAnswer) {
+        announce('Please type your answer before checking.');
+        return;
+      }
 
-      const ex = exercises[currentIndex];
-      const answer = selected.dataset.value;
-      const isCorrect = answer === ex.correct_answer;
+      var ex = exercises[currentIndex];
+      var isCorrect = isAnswerCorrect(userAnswer, ex.correct_answer);
 
-      document.querySelectorAll('.option-item').forEach(opt => {
-        opt.style.pointerEvents = 'none';
-        if (opt.dataset.value === ex.correct_answer) opt.classList.add('correct');
-        else if (opt.classList.contains('selected') && !isCorrect) opt.classList.add('incorrect');
-      });
+      input.disabled = true;
+      input.style.borderColor = isCorrect ? 'var(--success)' : 'var(--danger)';
 
       if (isCorrect) correctAnswers++;
       else incorrectAnswers++;
 
       try {
-        await saveProgress(currentUser.id, ex.id, isCorrect, answer);
+        await saveProgress(currentUser.id, ex.id, isCorrect, userAnswer);
         await updateStreak(currentUser.id);
       } catch(e) { console.error(e); }
 
-      const feedbackArea = document.getElementById('feedbackArea');
-      feedbackArea.innerHTML = `
-        <div class="feedback-box ${isCorrect ? 'correct' : 'incorrect'}" style="margin-top:1rem;" role="status" aria-live="polite">
-          <div class="feedback-title">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">${isCorrect
+      var feedbackArea = document.getElementById('feedbackArea');
+      feedbackArea.innerHTML =
+        '<div class="feedback-box ' + (isCorrect ? 'correct' : 'incorrect') + '" style="margin-top:1rem;">' +
+          '<div class="feedback-title">' +
+            '<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">' + (isCorrect
               ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'
-              : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}
-            </svg>
-            ${isCorrect ? 'Correct!' : 'Incorrect'}
-          </div>
-          <p class="feedback-text">${ex.explanation || (isCorrect ? 'Well done!' : 'The correct answer is: ' + ex.correct_answer)}</p>
-        </div>
-      `;
+              : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>') +
+            '</svg>' +
+            (isCorrect ? 'Correct!' : 'Incorrect') +
+          '</div>' +
+          '<p class="feedback-text">' + (isCorrect
+            ? (ex.explanation || 'Well done!')
+            : 'The correct answer is: <strong>' + ex.correct_answer + '</strong>. ' + (ex.explanation || '')) + '</p>' +
+          '<p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">Your answer: "' + userAnswer + '"</p>' +
+        '</div>';
 
-      document.getElementById('checkBtn').textContent = 'Next Exercise';
-      document.getElementById('checkBtn').onclick = nextExercise;
+      var btn = document.getElementById('checkBtn');
+      btn.textContent = 'Next Exercise';
+      btn.onclick = nextExercise;
+      btn.focus();
       updateStats();
+      announce(isCorrect ? 'Correct! Moving to next exercise.' : 'Incorrect. The correct answer is ' + ex.correct_answer + '. Moving to next exercise.');
     }
 
     function nextExercise() {
@@ -226,39 +247,37 @@
     }
 
     function prevExercise() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        renderExercise();
-      }
+      if (currentIndex > 0) { currentIndex--; renderExercise(); }
     }
 
     function updateStats() {
       document.getElementById('correctCount').textContent = correctAnswers;
       document.getElementById('incorrectCount').textContent = incorrectAnswers;
-      const total = correctAnswers + incorrectAnswers;
+      var total = correctAnswers + incorrectAnswers;
       if (total > 0) {
-        const grade = correctAnswers / total >= 0.9 ? 'A+' : correctAnswers / total >= 0.8 ? 'A' : correctAnswers / total >= 0.7 ? 'B' : correctAnswers / total >= 0.6 ? 'C' : 'D';
+        var grade = correctAnswers / total >= 0.9 ? 'A+' : correctAnswers / total >= 0.8 ? 'A' : correctAnswers / total >= 0.7 ? 'B' : correctAnswers / total >= 0.6 ? 'C' : 'D';
         document.getElementById('practiceGrade').textContent = grade;
       }
     }
 
     function showResults() {
-      const percentage = exercises.length > 0 ? Math.round((correctAnswers / exercises.length) * 100) : 0;
+      var percentage = exercises.length > 0 ? Math.round((correctAnswers / exercises.length) * 100) : 0;
       saveScore(currentUser.id, correctAnswers, exercises.length, 'writing').catch(console.error);
 
-      document.getElementById('exerciseContent').innerHTML = `
-        <div class="question-card fade-in" style="text-align:center;">
-          <div style="font-size:4rem;margin-bottom:1rem;">${percentage >= 70 ? '🎉' : '📚'}</div>
-          <h2 style="margin-bottom:1rem;">Module Complete!</h2>
-          <div class="stat-value green" style="font-size:3rem;margin-bottom:1rem;">${percentage}%</div>
-          <p style="color:var(--text-secondary);margin-bottom:2rem;">You got ${correctAnswers} out of ${exercises.length} correct</p>
-          <div style="display:flex;gap:1rem;justify-content:center;">
-            <button class="btn btn-outline" onclick="location.reload()">Try Again</button>
-            <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
-          </div>
-        </div>
-      `;
+      document.getElementById('exerciseContent').innerHTML =
+        '<div class="question-card fade-in" style="text-align:center;">' +
+          '<div style="font-size:4rem;margin-bottom:1rem;" aria-hidden="true">' + (percentage >= 70 ? '\uD83C\uDF89' : '\uD83D\uDCDA') + '</div>' +
+          '<h2 style="margin-bottom:1rem;">Module Complete!</h2>' +
+          '<div class="stat-value green" style="font-size:3rem;margin-bottom:1rem;" role="text" aria-label="Score ' + percentage + ' percent">' + percentage + '%</div>' +
+          '<p style="color:var(--text-secondary);margin-bottom:2rem;">You got ' + correctAnswers + ' out of ' + exercises.length + ' correct</p>' +
+          '<div style="display:flex;gap:1rem;justify-content:center;">' +
+            '<button class="btn btn-outline" onclick="location.reload()">Try Again</button>' +
+            '<a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>' +
+          '</div>' +
+        '</div>';
       document.getElementById('questionCounter').textContent = 'Complete!';
+      document.getElementById('questionCounter').setAttribute('aria-label', 'Module complete');
+      announce('Module complete. You scored ' + percentage + ' percent.');
     }
 
     async function handleLogout() {
