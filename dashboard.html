@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-  <header>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header>
   <nav class="navbar" id="navbar" aria-label="Main navigation">
     <a href="index.html" class="nav-brand">
       <span class="brand-icon" aria-hidden="true">EN</span>
@@ -35,9 +35,9 @@
       </button>
     </div>
   </nav>
-  </header>
+</header>
 
-  <main id="main-content">
+<main id="main-content" tabindex="-1">
 
   <div class="dashboard">
     <div class="dashboard-header">
@@ -46,8 +46,8 @@
     </div>
 
     <div class="dashboard-content">
-      <p class="section-title" id="modules-heading">Learn and Play</p>
-      <div class="modules-grid" aria-labelledby="modules-heading">
+      <p class="section-title" id="modules-heading" role="heading" aria-level="2">Learn and Play</p>
+      <div class="modules-grid" role="region" aria-labelledby="modules-heading">
         <a href="activities.html?module=grammar" class="module-card learn" style="text-decoration: none;">
           <div class="module-icon purple" aria-hidden="true">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -115,7 +115,7 @@
             </div>
           </div>
         </a>
-        
+
         <a href="reading.html" class="module-card" style="text-decoration: none; color: inherit; border: 1px solid var(--border);">
           <div class="module-icon orange" aria-hidden="true">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -151,24 +151,24 @@
         </div>
       </div>
 
-      <p class="section-title" id="stats-heading">Your Stats</p>
-      <div class="stats-row" aria-labelledby="stats-heading">
+      <p class="section-title" id="stats-heading" role="heading" aria-level="2">Your Stats</p>
+      <div class="stats-row" role="region" aria-labelledby="stats-heading">
         <div class="stat-card">
-          <h4>Overall Accuracy</h4>
+          <h4 role="heading" aria-level="3">Overall Accuracy</h4>
           <div class="stat-value green" id="statAccuracy">0%</div>
         </div>
         <div class="stat-card">
-          <h4>Exercises Done</h4>
+          <h4 role="heading" aria-level="3">Exercises Done</h4>
           <div class="stat-value" id="statExercises">0</div>
         </div>
         <div class="stat-card">
-          <h4>Current Level</h4>
+          <h4 role="heading" aria-level="3">Current Level</h4>
           <div class="stat-value orange" id="statLevel">A1</div>
         </div>
       </div>
 
-      <p class="section-title" id="streak-heading">Daily Streak</p>
-      <div class="streak-section" aria-labelledby="streak-heading">
+      <p class="section-title" id="streak-heading" role="heading" aria-level="2">Daily Streak</p>
+      <div class="streak-section" role="region" aria-labelledby="streak-heading">
         <div class="streak-header">
           <h3>
             <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -181,98 +181,98 @@
       </div>
     </div>
   </div>
-  </main>
+</main>
 
-  <script src="js/supabase.js"></script>
-  <script src="js/supabase-config.js"></script>
-  <script src="js/main.js"></script>
-  <script>
-    async function waitForUser(maxAttempts = 5, delayMs = 150) {
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const session = await getSession().catch(() => null);
-        if (session?.user) return session.user;
-        const user = await getUser().catch(() => null);
-        if (user) return user;
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-      return null;
+<script src="js/supabase.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/main.js"></script>
+<script>
+  async function waitForUser(maxAttempts = 5, delayMs = 150) {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const session = await getSession().catch(() => null);
+      if (session?.user) return session.user;
+      const user = await getUser().catch(() => null);
+      if (user) return user;
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+    return null;
+  }
+
+  async function loadDashboard() {
+    const user = await waitForUser();
+    if (!user) {
+      window.location.replace('login.html');
+      return;
     }
 
-    async function loadDashboard() {
-      const user = await waitForUser();
-      if (!user) {
-        window.location.replace('login.html');
+    try {
+      const diagnosticDone = await hasCompletedDiagnostic(user.id);
+      if (!diagnosticDone) {
+        window.location.replace('diagnostic.html');
         return;
       }
 
-      try {
-        const diagnosticDone = await hasCompletedDiagnostic(user.id);
-        if (!diagnosticDone) {
-          window.location.replace('diagnostic.html');
-          return;
-        }
-
-        let profile = await getProfile(user.id);
-        if (!profile) {
+      let profile = await getProfile(user.id);
+      if (!profile) {
         profile = { full_name: user.email, level: 'A1', streak: 0, total_exercises: 0, accuracy: 0 };
       }
-        const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : user.email[0].toUpperCase();
+      const initials = profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : user.email[0].toUpperCase();
 
-        document.getElementById('userAvatar').textContent = initials;
-        document.getElementById('userName').textContent = profile.full_name || user.email;
-        document.getElementById('welcomeName').textContent = profile.full_name || user.email;
+      document.getElementById('userAvatar').textContent = initials;
+      document.getElementById('userName').textContent = profile.full_name || user.email;
+      document.getElementById('welcomeName').textContent = profile.full_name || user.email;
 
-        document.getElementById('statAccuracy').textContent = profile.accuracy + '%';
-        document.getElementById('statExercises').textContent = profile.total_exercises;
-        document.getElementById('statLevel').textContent = profile.level || 'A1';
-        document.getElementById('streakText').textContent = (profile.streak || 0) + '-day streak';
+      document.getElementById('statAccuracy').textContent = profile.accuracy + '%';
+      document.getElementById('statExercises').textContent = profile.total_exercises;
+      document.getElementById('statLevel').textContent = profile.level || 'A1';
+      document.getElementById('streakText').textContent = (profile.streak || 0) + '-day streak';
 
-        // Load module progress
-        const modules = ['grammar', 'speaking', 'vocabulary', 'writing', 'reading'];
-        const colors = ['', 'green', 'yellow', 'red'];
-        const ids = ['grammar', 'speaking', 'vocab', 'writing', 'reading'];
+      // Load module progress
+      const modules = ['grammar', 'speaking', 'vocabulary', 'writing', 'reading'];
+      const colors = ['', 'green', 'yellow', 'red'];
+      const ids = ['grammar', 'speaking', 'vocab', 'writing', 'reading'];
 
-        for (let i = 0; i < modules.length; i++) {
-          try {
-            const progress = await getModuleProgress(user.id, modules[i]);
-            document.getElementById(ids[i] + 'Progress').style.width = progress.percentage + '%';
-            document.getElementById(ids[i] + 'Text').textContent = progress.completed + ' exercises done';
-            document.getElementById(ids[i] + 'Percent').textContent = progress.percentage + '%';
-          } catch(e) {
-            document.getElementById(ids[i] + 'Text').textContent = '0 exercises done';
-          }
+      for (let i = 0; i < modules.length; i++) {
+        try {
+          const progress = await getModuleProgress(user.id, modules[i]);
+          document.getElementById(ids[i] + 'Progress').style.width = progress.percentage + '%';
+          document.getElementById(ids[i] + 'Text').textContent = progress.completed + ' exercises done';
+          document.getElementById(ids[i] + 'Percent').textContent = progress.percentage + '%';
+        } catch(e) {
+          document.getElementById(ids[i] + 'Text').textContent = '0 exercises done';
         }
-
-        // Load streak days
-        const streakDates = await getStreakDays(user.id);
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const streakContainer = document.getElementById('streakDays');
-        streakContainer.innerHTML = '';
-
-        for (let i = 6; i >= 0; i--) {
-          const date = new Date(Date.now() - i * 86400000);
-          const dateStr = date.toISOString().split('T')[0];
-          const dayName = dayNames[date.getDay()];
-          const isCompleted = streakDates.includes(dateStr);
-          const isToday = i === 0;
-
-          const dayEl = document.createElement('div');
-          dayEl.className = 'streak-day' + (isCompleted ? ' completed' : '') + (isToday ? ' today' : '');
-          dayEl.innerHTML = `<span class="day-label">${dayName}</span><span>${7 - i}</span>`;
-          streakContainer.appendChild(dayEl);
-        }
-
-      } catch (error) {
-        console.error('Error loading dashboard:', error);
       }
-    }
 
-    async function handleLogout() {
-      await signOut();
-      window.location.href = 'index.html';
-    }
+      // Load streak days
+      const streakDates = await getStreakDays(user.id);
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const streakContainer = document.getElementById('streakDays');
+      streakContainer.innerHTML = '';
 
-    loadDashboard();
-  </script>
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(Date.now() - i * 86400000);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayName = dayNames[date.getDay()];
+        const isCompleted = streakDates.includes(dateStr);
+        const isToday = i === 0;
+
+        const dayEl = document.createElement('div');
+        dayEl.className = 'streak-day' + (isCompleted ? ' completed' : '') + (isToday ? ' today' : '');
+        dayEl.innerHTML = `<span class="day-label">${dayName}</span><span>${7 - i}</span>`;
+        streakContainer.appendChild(dayEl);
+      }
+
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+    }
+  }
+
+  async function handleLogout() {
+    await signOut();
+    window.location.href = 'index.html';
+  }
+
+  loadDashboard();
+</script>
 </body>
 </html>

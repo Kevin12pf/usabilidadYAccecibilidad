@@ -1,19 +1,19 @@
 :root {
   --primary: #6C3CE1;
   --primary-dark: #5A2CC0;
-  --primary-light: #8B5CF6;
-  --primary-gradient: linear-gradient(135deg, #6C3CE1 0%, #8B5CF6 100%);
-  --secondary: #F97316;
-  --secondary-light: #FB923C;
-  --success: #10B981;
-  --danger: #EF4444;
-  --warning: #F59E0B;
+  --primary-light: #7C3AED;
+  --primary-gradient: linear-gradient(135deg, #6C3CE1 0%, #7C3AED 100%);
+  --secondary: #C2410C;
+  --secondary-light: #9A3412;
+  --success: #047857;
+  --danger: #B91C1C;
+  --warning: #B45309;
   --bg-main: #F8FAFC;
   --bg-card: #FFFFFF;
   --bg-dark: #1E1B4B;
   --text-primary: #1E293B;
   --text-secondary: #64748B;
-  --text-light: #94A3B8;
+  --text-light: #475569;
   --border: #E2E8F0;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
@@ -135,7 +135,6 @@ body {
   padding: 6px 12px;
   border-radius: var(--radius-full);
   background: var(--bg-main);
-  border: 1px solid var(--border);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -1542,7 +1541,7 @@ body {
 
 .tips-box p {
   font-size: 0.9rem;
-  color: #475569;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -1792,19 +1791,19 @@ body {
   .modules-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .overview-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .activities-container {
     grid-template-columns: 1fr;
   }
-  
+
   .sidebar {
     position: static;
   }
-  
+
   .footer-content {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1814,39 +1813,39 @@ body {
   .hero h1 {
     font-size: 2.5rem;
   }
-  
+
   .hero-features {
     grid-template-columns: 1fr;
   }
-  
+
   .modules-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-row {
     grid-template-columns: 1fr;
   }
-  
+
   .navbar {
     padding: 0 1rem;
   }
-  
+
   .nav-links {
     display: none;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
   }
-  
+
   .mic-status {
     flex-wrap: wrap;
   }
-  
+
   .answer-options {
     grid-template-columns: 1fr;
   }
-  
+
   .modules-overview {
     grid-template-columns: 1fr;
   }
@@ -1878,4 +1877,28 @@ body {
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== CORRECCIONES DE CONTRASTE WCAG ===== */
+
+/* Evita que las tarjetas que son enlaces hereden el azul/morado del navegador. */
+.module-card,
+.module-card:visited {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+/* El texto del banner necesita un tono más oscuro en todo el degradado amarillo. */
+.challenge-info p,
+.challenge-timer {
+  color: #78350F;
+}
+
+/* Conserva un contraste visible al navegar con teclado. */
+.btn:focus-visible,
+.module-card:focus-visible,
+.nav-links a:focus-visible,
+.nav-user:focus-visible {
+  outline: 3px solid #1E293B;
+  outline-offset: 3px;
 }
