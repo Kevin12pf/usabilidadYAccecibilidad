@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-managed-page-focus>
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <header>
   <nav class="navbar" id="navbar" aria-label="Main navigation">
@@ -26,7 +26,7 @@
       <li><a href="reading.html">Reading</a></li>
     </ul>
     <div class="nav-actions">
-      <div class="nav-user" id="userMenu" role="button" aria-labelledby="userName">
+      <div class="nav-user" id="userMenu" aria-labelledby="userName">
         <div class="nav-user-avatar" id="userAvatar" aria-hidden="true">--</div>
         <span id="userName">Loading...</span>
       </div>
@@ -42,16 +42,16 @@
     <div class="speaking-container">
       <div class="speaking-content" style="text-align: left;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h1 style="font-size: 1.5rem; font-weight: 700;">Speaking Practice</h1>
-          <span style="color: var(--text-secondary); font-size: 0.9rem;" id="topicCounter" role="status" aria-label="Topic 1 of 0">1 / 0</span>
+          <h1 id="speakingTitle" tabindex="0" style="font-size: 1.5rem; font-weight: 700;">Speaking Practice</h1>
+          <span style="color: var(--text-secondary); font-size: 0.9rem;" id="topicCounter" tabindex="0" aria-label="Topic 1 of 0">1 / 0</span>
         </div>
 
-        <div class="instruction-box" role="region" aria-label="How this works">
+        <div class="instruction-box" role="region" tabindex="0" aria-label="How this works">
           <h2 style="font-size: 1rem;">Free Speaking Exercise</h2>
-          <p>You will be given a topic. Speak freely using the suggested structures. Click record, talk, then click stop. Your speech will be evaluated automatically.</p>
+          <p>You will be given a topic. Speak freely using the suggested structures. Press Record, talk, then press Stop. Your speech will be evaluated automatically.</p>
         </div>
 
-        <div class="question-card" id="topicCard" style="margin-bottom: 1.5rem;" role="region" aria-label="Current speaking topic" tabindex="-1">
+        <div class="question-card" id="topicCard" style="margin-bottom: 1.5rem;" role="region" aria-labelledby="topicTitle" aria-describedby="topicPrompt" tabindex="0">
           <div class="question-number" id="topicNumber" aria-hidden="true">1</div>
           <h2 style="margin-bottom: 0.75rem;" id="topicTitle">Loading...</h2>
           <p style="color: var(--text-secondary); margin-bottom: 1rem;" id="topicPrompt"></p>
@@ -95,7 +95,7 @@
             <button class="record-btn" id="recordBtn" onclick="toggleRecording()" aria-label="Start recording">
               <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
             </button>
-            <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;" id="recordLabel" aria-live="polite" aria-atomic="true">Click to start recording</p>
+            <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;" id="recordLabel" aria-live="polite" aria-atomic="true">Press the Record button to start recording</p>
           </div>
         </div>
 
@@ -131,6 +131,7 @@
   <script>
     var currentUser = null;
     var currentIndex = 0;
+    var hasAnnouncedInitialContext = false;
     var isRecording = false;
     var liveTranscript = '';
     var announceTimeout = null;
@@ -358,11 +359,15 @@
       document.getElementById('scoreSection').setAttribute('aria-hidden', 'true');
       document.getElementById('feedbackContent').innerHTML = '<p id="feedbackText">Record yourself speaking about the topic. Try to use the suggested structures.</p>';
       resetMicStatus();
-      document.getElementById('recordLabel').textContent = 'Click to start recording';
+      document.getElementById('recordLabel').textContent = 'Press the Record button to start recording';
 
       var card = document.getElementById('topicCard');
-      card.focus();
-      announceToScreenReader('Topic ' + (currentIndex + 1) + ' of ' + total + '. ' + topic.title + '. ' + topic.prompt);
+      if (!hasAnnouncedInitialContext) {
+        document.getElementById('speakingTitle').focus();
+        hasAnnouncedInitialContext = true;
+      } else {
+        card.focus();
+      }
     }
 
     function resetMicStatus() {
@@ -442,7 +447,7 @@
           document.getElementById('recordBtn').classList.remove('recording');
           document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>';
           document.getElementById('recordBtn').setAttribute('aria-label', 'Start recording');
-          document.getElementById('recordLabel').textContent = 'Click to start recording';
+          document.getElementById('recordLabel').textContent = 'Press the Record button to start recording';
           resetMicStatus();
         }
       };

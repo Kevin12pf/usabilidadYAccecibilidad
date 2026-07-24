@@ -135,12 +135,12 @@ body {
   padding: 6px 12px;
   border-radius: var(--radius-full);
   background: var(--bg-main);
-  cursor: pointer;
+  cursor: default;
   transition: var(--transition);
 }
 
 .nav-user:hover {
-  background: var(--border);
+  background: var(--bg-main);
 }
 
 .nav-user-avatar {
@@ -487,7 +487,8 @@ body {
   margin-bottom: 0.75rem;
 }
 
-.footer-links a {
+.footer-links a,
+.footer-links span {
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   transition: var(--transition);
@@ -513,7 +514,8 @@ body {
   margin-top: 1.5rem;
 }
 
-.social-links a {
+.social-links a,
+.social-links span {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
@@ -1101,6 +1103,13 @@ body {
   padding: 14px 16px;
   border: 2px solid var(--border);
   border-radius: var(--radius-md);
+  width: 100%;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
   cursor: pointer;
   transition: var(--transition);
 }

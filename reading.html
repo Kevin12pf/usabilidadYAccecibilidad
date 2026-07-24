@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-managed-page-focus>
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <header>
   <nav class="navbar" id="navbar" aria-label="Main navigation">
@@ -26,7 +26,7 @@
       <li><a href="reading.html" class="active" aria-current="page">Reading</a></li>
     </ul>
     <div class="nav-actions">
-      <div class="nav-user" id="userMenu" role="button" aria-labelledby="userName">
+      <div class="nav-user" id="userMenu" aria-labelledby="userName">
         <div class="nav-user-avatar" id="userAvatar" aria-hidden="true">--</div>
         <span id="userName">Loading...</span>
       </div>
@@ -42,16 +42,16 @@
     <div class="speaking-container">
       <div class="speaking-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h1 style="font-size: 1.5rem; font-weight: 700;">Reading Aloud</h1>
-          <span style="color: var(--text-secondary);" id="exerciseCounter" aria-live="polite">1 / 0</span>
+          <h1 id="readingTitle" tabindex="0" style="font-size: 1.5rem; font-weight: 700;">Reading Aloud</h1>
+          <span style="color: var(--text-secondary);" id="exerciseCounter" tabindex="0">1 / 0</span>
         </div>
 
-        <div class="instruction-box" role="region" aria-label="How this works">
+        <div class="instruction-box" role="region" tabindex="0" aria-label="How this works">
           <h3 style="font-size: 1rem;">Reading Exercise</h3>
-          <p>Read the sentence aloud and click Record. The browser will analyze your pronunciation and show a score.</p>
+          <p>Read the sentence aloud and press the Record button. The browser will analyze your pronunciation and show a score.</p>
         </div>
 
-        <div class="sentence-display" id="sentenceDisplay" aria-label="Sentence to read aloud" role="region" tabindex="-1">
+        <div class="sentence-display" id="sentenceDisplay" role="heading" aria-level="2" tabindex="0">
           Loading...
         </div>
 
@@ -89,7 +89,7 @@
             <button class="record-btn" id="recordBtn" onclick="toggleRecording()" aria-label="Start recording">
               <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
             </button>
-            <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;" id="recordLabel" aria-live="polite" aria-atomic="true">Click to start recording</p>
+            <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;" id="recordLabel" aria-live="polite" aria-atomic="true">Press the Record button to start recording</p>
           </div>
         </div>
 
@@ -128,6 +128,7 @@
     var currentUser = null;
     var exercises = [];
     var currentIndex = 0;
+    var hasAnnouncedInitialContext = false;
     var isRecording = false;
     var liveTranscript = '';
     var announceTimeout = null;
@@ -191,9 +192,13 @@
       document.getElementById('tipText').innerHTML = ex.explanation || 'Press Record and read the sentence aloud. Then press Stop to see your score.';
 
       resetMicStatus();
-      document.getElementById('recordLabel').textContent = 'Click to start recording';
-      document.getElementById('sentenceDisplay').focus();
-      announce('Exercise ' + (currentIndex + 1) + ' of ' + exercises.length + '. Read this sentence: ' + cleanText);
+      document.getElementById('recordLabel').textContent = 'Press the Record button to start recording';
+      if (!hasAnnouncedInitialContext) {
+        document.getElementById('readingTitle').focus();
+        hasAnnouncedInitialContext = true;
+      } else {
+        document.getElementById('sentenceDisplay').focus();
+      }
     }
 
     function resetMicStatus() {
@@ -269,7 +274,7 @@
           document.getElementById('recordBtn').classList.remove('recording');
           document.getElementById('recordBtn').innerHTML = '<svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>';
           document.getElementById('recordBtn').setAttribute('aria-label', 'Start recording');
-          document.getElementById('recordLabel').textContent = 'Click to start recording';
+          document.getElementById('recordLabel').textContent = 'Press the Record button to start recording';
           resetMicStatus();
         }
       };

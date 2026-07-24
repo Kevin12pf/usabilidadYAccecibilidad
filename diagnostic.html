@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +26,7 @@
       <li><a href="reading.html">Reading</a></li>
     </ul>
     <div class="nav-actions">
-      <div class="nav-user" id="userMenu" role="button" aria-labelledby="userName">
+      <div class="nav-user" id="userMenu" aria-labelledby="userName">
         <div class="nav-user-avatar" id="userAvatar" aria-hidden="true">--</div>
         <span id="userName">Loading...</span>
       </div>
@@ -41,18 +41,20 @@
   <div class="test-page">
     <div class="test-container">
       <div class="test-header">
-        <h1>Diagnostic Test</h1>
-        <p>Answer all questions carefully. Your results will determine your starting level.</p>
+        <h1 id="diagnosticTitle" tabindex="0">Diagnostic Test</h1>
+        <p id="diagnosticInstructions" tabindex="0">Answer all questions carefully. Your results will determine your starting level.</p>
       </div>
 
-      <div class="test-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Test progress">
+      <div id="diagnosticAnnounce" class="sr-only" lang="en-US" aria-live="polite" aria-atomic="true"></div>
+
+      <div class="test-progress" id="testProgress" role="progressbar" tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Test progress">
         <div class="test-progress-bar">
           <div class="test-progress-fill" id="testProgressFill" style="width: 0%"></div>
         </div>
         <span class="test-progress-text" id="testProgressText">0/0</span>
       </div>
 
-      <div id="questionContainer" aria-live="polite">
+      <div id="questionContainer" lang="en-US">
         <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
           <p>Loading diagnostic questions...</p>
         </div>
@@ -79,6 +81,7 @@
     let currentUser = null;
     let questions = [];
     let currentQuestion = 0;
+    let hasPositionedInitialFocus = false;
     let answers = {};
     let correctCount = 0;
 
@@ -108,10 +111,20 @@
         }
 
         document.getElementById('testProgressText').textContent = `0/${questions.length}`;
+        document.getElementById('testProgressText').setAttribute('aria-label', 'Diagnostic test, question 0 of ' + questions.length);
         renderQuestion();
       } catch (error) {
         console.error('Error loading diagnostic:', error);
       }
+    }
+
+    function announceDiagnostic(message) {
+      const liveRegion = document.getElementById('diagnosticAnnounce');
+      if (!liveRegion) return;
+      liveRegion.textContent = '';
+      setTimeout(function() {
+        liveRegion.textContent = message;
+      }, 50);
     }
 
     function renderQuestion() {
@@ -122,9 +135,11 @@
 
       const q = questions[currentQuestion];
       const options = q.options || [];
-      const progress = ((currentQuestion) / questions.length) * 100;
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
       document.getElementById('testProgressFill').style.width = progress + '%';
+      document.getElementById('testProgress').setAttribute('aria-valuenow', Math.round(progress));
       document.getElementById('testProgressText').textContent = `${currentQuestion + 1}/${questions.length}`;
+      document.getElementById('testProgressText').setAttribute('aria-label', 'Diagnostic test, question ' + (currentQuestion + 1) + ' of ' + questions.length);
 
       document.getElementById('prevBtn').disabled = currentQuestion === 0;
 
@@ -137,28 +152,38 @@
       const selectedAnswer = answers[q.id] || '';
 
       document.getElementById('questionContainer').innerHTML = `
-        <div class="question-card fade-in">
-          <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
-          <div class="question-text">${q.question}</div>
-          <div class="options-list" role="radiogroup" aria-label="Answer options for question ${currentQuestion + 1}">
+        <div class="question-card fade-in" id="questionCard" tabindex="-1">
+          <div class="question-number" id="questionNumber" tabindex="0">Question ${currentQuestion + 1} of ${questions.length}</div>
+          <div class="question-text" id="questionText" lang="en-US" tabindex="0" role="heading" aria-level="2">${q.question}</div>
+          <div class="options-list" aria-label="Answer choices for question ${currentQuestion + 1}">
             ${options.map(opt => `
-              <div class="option-item ${selectedAnswer === opt ? 'selected' : ''}" role="radio" aria-checked="${selectedAnswer === opt}" data-value="${opt}" onclick="selectAnswer('${q.id}', '${opt.replace(/'/g, "\\'")}', this)">
+              <button type="button" class="option-item ${selectedAnswer === opt ? 'selected' : ''}" lang="en-US" aria-pressed="${selectedAnswer === opt}" data-value="${opt}" onclick="selectAnswer('${q.id}', '${opt.replace(/'/g, "\\'")}', this)">
                 <div class="option-radio" aria-hidden="true"></div>
                 <span class="option-text">${opt}</span>
-              </div>
+              </button>
             `).join('')}
           </div>
         </div>
       `;
+
+      const questionNumber = document.getElementById('questionNumber');
+      const questionText = document.getElementById('questionText');
+      if (!hasPositionedInitialFocus) {
+        const diagnosticTitle = document.getElementById('diagnosticTitle');
+        if (diagnosticTitle) diagnosticTitle.focus();
+        hasPositionedInitialFocus = true;
+      } else {
+        if (questionNumber) questionNumber.focus();
+      }
     }
 
     function selectAnswer(qId, answer, el) {
       document.querySelectorAll('.option-item').forEach(o => {
         o.classList.remove('selected');
-        o.setAttribute('aria-checked', 'false');
+        o.setAttribute('aria-pressed', 'false');
       });
       el.classList.add('selected');
-      el.setAttribute('aria-checked', 'true');
+      el.setAttribute('aria-pressed', 'true');
       answers[qId] = answer;
     }
 
@@ -218,8 +243,11 @@
       `;
 
       document.getElementById('testProgressFill').style.width = '100%';
+      document.getElementById('testProgress').setAttribute('aria-valuenow', '100');
       document.getElementById('testProgressText').textContent = 'Complete!';
+      document.getElementById('testProgressText').setAttribute('aria-label', 'Diagnostic test complete');
       document.querySelector('.question-nav').style.display = 'none';
+      announceDiagnostic('Diagnostic test complete. Your level is ' + level + '. You answered ' + correctCount + ' out of ' + questions.length + ' correctly.');
     }
 
     async function handleLogout() { await signOut(); window.location.href = 'index.html'; }

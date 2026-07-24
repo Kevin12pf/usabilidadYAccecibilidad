@@ -1,6 +1,114 @@
 // Respect prefers-reduced-motion
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+function isActivationKey(key) {
+  return key === 'Enter' || key === ' ' || key === 'Spacebar';
+}
+
+function getSiblingsInGroup(element, selector) {
+  const container = element.closest(selector === '[role="tab"]' ? '[role="tablist"]' : '[role="radiogroup"]');
+  if (!container) return [];
+  return Array.from(container.querySelectorAll(selector)).filter(node => !node.hasAttribute('disabled'));
+}
+
+let lastPageContextAnnouncement = '';
+
+function announcePageContext(message) {
+  let region = document.getElementById('pageContextAnnounce');
+  if (!region) {
+    region = document.createElement('div');
+    region.id = 'pageContextAnnounce';
+    region.className = 'sr-only';
+    region.lang = document.documentElement.lang || 'en-US';
+    region.setAttribute('aria-live', 'polite');
+    region.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(region);
+  }
+
+  let text = message;
+  if (!text) {
+    const main = document.querySelector('main');
+    if (!main) return;
+
+    const heading = main.querySelector('h1');
+    const subtitle = main.querySelector('.dashboard-header p, .auth-header p, .progress-header p, .test-header p, .instruction-box p, .challenge-info p, .hero p');
+    const counter = main.querySelector('#questionCounter, #exerciseCounter, #topicCounter, #testProgressText');
+    const parts = [];
+
+    if (heading) parts.push(heading.textContent.trim());
+    if (subtitle) parts.push(subtitle.textContent.trim());
+    if (counter) {
+      const counterText = counter.getAttribute('aria-label') || counter.textContent.trim();
+      if (counterText) parts.push(counterText);
+    }
+
+    text = parts.filter(Boolean).join('. ');
+  }
+
+  text = (text || '').trim();
+  if (!text || text === lastPageContextAnnouncement) return;
+
+  lastPageContextAnnouncement = text;
+  region.textContent = '';
+  setTimeout(() => {
+    region.textContent = text;
+  }, 50);
+}
+
+window.announcePageContext = announcePageContext;
+
+document.addEventListener('keydown', (event) => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+
+  const role = target.getAttribute('role');
+
+  if (role === 'button' && target.tagName !== 'BUTTON' && target.tagName !== 'A' && isActivationKey(event.key)) {
+    event.preventDefault();
+    target.click();
+    return;
+  }
+
+  if (role === 'radio') {
+    const radios = getSiblingsInGroup(target, '[role="radio"]');
+    const currentIndex = radios.indexOf(target);
+
+    if (currentIndex === -1) return;
+
+    let nextIndex = null;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % radios.length;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + radios.length) % radios.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = radios.length - 1;
+
+    if (nextIndex !== null) {
+      event.preventDefault();
+      radios[nextIndex].focus();
+      radios[nextIndex].click();
+    }
+    return;
+  }
+
+  if (role === 'tab') {
+    const tabs = getSiblingsInGroup(target, '[role="tab"]');
+    const currentIndex = tabs.indexOf(target);
+
+    if (currentIndex === -1) return;
+
+    let nextIndex = null;
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+    if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = tabs.length - 1;
+
+    if (nextIndex !== null) {
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      tabs[nextIndex].click();
+    }
+  }
+});
+
 // Navbar scroll effect
 const navbar = document.getElementById('navbar');
 if (navbar) {
@@ -74,6 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 500);
     });
   }
+
+  setTimeout(() => {
+    if (!document.getElementById('diagnosticAnnounce') && !document.body.hasAttribute('data-managed-page-focus')) {
+      announcePageContext();
+    }
+  }, 250);
 });
 
 // Add hover effects to cards

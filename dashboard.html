@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +26,7 @@
       <li><a href="reading.html">Reading</a></li>
     </ul>
     <div class="nav-actions">
-      <div class="nav-user" id="userMenu" style="cursor: pointer;" role="button" aria-labelledby="userName">
+      <div class="nav-user" id="userMenu" aria-labelledby="userName">
         <div class="nav-user-avatar" id="userAvatar" aria-hidden="true">--</div>
         <span id="userName">Loading...</span>
       </div>
@@ -135,15 +135,15 @@
       </div>
 
       <div class="challenge-banner">
-        <div class="challenge-info">
-          <h3>
+        <div class="challenge-info" tabindex="0" aria-labelledby="challengeTitle" aria-describedby="challengeDescription">
+          <h3 id="challengeTitle">
             <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             Challenge of the Day
           </h3>
-          <p>Test your skills with today's special challenge and earn bonus points!</p>
+          <p id="challengeDescription">Test your skills with today's special challenge and earn bonus points!</p>
         </div>
         <div>
-          <div class="challenge-timer">
+          <div class="challenge-timer" id="challengeTimer" tabindex="0">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             Expires in 14h 32m
           </div>
@@ -151,31 +151,31 @@
         </div>
       </div>
 
-      <p class="section-title" id="stats-heading" role="heading" aria-level="2">Your Stats</p>
-      <div class="stats-row" role="region" aria-labelledby="stats-heading">
-        <div class="stat-card">
-          <h4 role="heading" aria-level="3">Overall Accuracy</h4>
+      <p class="section-title" id="stats-heading" role="heading" aria-level="2" tabindex="0">Your Stats</p>
+      <div class="stats-row">
+        <div class="stat-card" tabindex="0" aria-labelledby="accuracyHeading" aria-describedby="statAccuracy">
+          <h4 id="accuracyHeading" role="heading" aria-level="3">Overall Accuracy</h4>
           <div class="stat-value green" id="statAccuracy">0%</div>
         </div>
-        <div class="stat-card">
-          <h4 role="heading" aria-level="3">Exercises Done</h4>
+        <div class="stat-card" tabindex="0" aria-labelledby="exercisesHeading" aria-describedby="statExercises">
+          <h4 id="exercisesHeading" role="heading" aria-level="3">Exercises Done</h4>
           <div class="stat-value" id="statExercises">0</div>
         </div>
-        <div class="stat-card">
-          <h4 role="heading" aria-level="3">Current Level</h4>
+        <div class="stat-card" tabindex="0" aria-labelledby="levelHeading" aria-describedby="statLevel">
+          <h4 id="levelHeading" role="heading" aria-level="3">Current Level</h4>
           <div class="stat-value orange" id="statLevel">A1</div>
         </div>
       </div>
 
-      <p class="section-title" id="streak-heading" role="heading" aria-level="2">Daily Streak</p>
-      <div class="streak-section" role="region" aria-labelledby="streak-heading">
+      <p class="section-title" id="streak-heading" role="heading" aria-level="2" tabindex="0">Daily Streak</p>
+      <div class="streak-section">
         <div class="streak-header">
-          <h3>
+          <h3 tabindex="0">
             <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
             <span id="streakText">0-day streak</span> — keep it going!
           </h3>
         </div>
-        <div class="streak-days" id="streakDays">
+        <div class="streak-days" id="streakDays" role="list" aria-label="Activity during the last seven days">
           <!-- Filled by JS -->
         </div>
       </div>
@@ -236,6 +236,7 @@
         try {
           const progress = await getModuleProgress(user.id, modules[i]);
           document.getElementById(ids[i] + 'Progress').style.width = progress.percentage + '%';
+          document.getElementById(ids[i] + 'Progress').parentElement.setAttribute('aria-valuenow', progress.percentage);
           document.getElementById(ids[i] + 'Text').textContent = progress.completed + ' exercises done';
           document.getElementById(ids[i] + 'Percent').textContent = progress.percentage + '%';
         } catch(e) {
@@ -258,8 +259,15 @@
 
         const dayEl = document.createElement('div');
         dayEl.className = 'streak-day' + (isCompleted ? ' completed' : '') + (isToday ? ' today' : '');
+        dayEl.setAttribute('role', 'listitem');
+        dayEl.setAttribute('tabindex', '0');
+        dayEl.setAttribute('aria-label', dayName + ', day ' + (7 - i) + (isCompleted ? ', completed' : ', not completed') + (isToday ? ', today' : ''));
         dayEl.innerHTML = `<span class="day-label">${dayName}</span><span>${7 - i}</span>`;
         streakContainer.appendChild(dayEl);
+      }
+
+      if (window.announcePageContext) {
+        window.announcePageContext();
       }
 
     } catch (error) {

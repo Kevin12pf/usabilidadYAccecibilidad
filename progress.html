@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-managed-page-focus>
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <header>
   <nav class="navbar" id="navbar" aria-label="Main navigation">
@@ -26,7 +26,7 @@
       <li><a href="reading.html">Reading</a></li>
     </ul>
     <div class="nav-actions">
-      <div class="nav-user" id="userMenu" role="button" aria-labelledby="userName">
+      <div class="nav-user" id="userMenu" aria-labelledby="userName">
         <div class="nav-user-avatar" id="userAvatar" aria-hidden="true">--</div>
         <span id="userName">Loading...</span>
       </div>
@@ -41,41 +41,41 @@
   <div class="progress-page">
     <div class="progress-container">
       <div class="progress-header">
-        <h1>Your Learning Progress</h1>
+        <h1 id="progressTitle" tabindex="0">Your Learning Progress</h1>
         <div class="progress-tabs" role="tablist" aria-label="Progress view tabs">
-          <button class="progress-tab active" role="tab" aria-selected="true" aria-controls="resumeContent" id="tab-resume" onclick="showTab('resume', this)">Resume</button>
-          <button class="progress-tab" role="tab" aria-selected="false" aria-controls="modulesContent" id="tab-modules" onclick="showTab('modules', this)">By Module</button>
-          <button class="progress-tab" role="tab" aria-selected="false" aria-controls="historyContent" id="tab-history" onclick="showTab('history', this)">History</button>
+          <button class="progress-tab active" role="tab" tabindex="0" aria-selected="true" aria-controls="resumeContent" id="tab-resume" onclick="showTab('resume', this)">Resume</button>
+          <button class="progress-tab" role="tab" tabindex="-1" aria-selected="false" aria-controls="modulesContent" id="tab-modules" onclick="showTab('modules', this)">By Module</button>
+          <button class="progress-tab" role="tab" tabindex="-1" aria-selected="false" aria-controls="historyContent" id="tab-history" onclick="showTab('history', this)">History</button>
         </div>
       </div>
 
-      <div class="level-badge">
+      <div class="level-badge" tabindex="0">
         Current level: <span id="currentLevel">A1</span>
       </div>
 
       <div class="overview-grid">
-        <div class="overview-card">
+        <div class="overview-card" tabindex="0">
           <div class="icon purple" aria-hidden="true">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
           <div class="value" id="totalActivities">0</div>
           <div class="label">Activities carried out</div>
         </div>
-        <div class="overview-card">
+        <div class="overview-card" tabindex="0">
           <div class="icon green" aria-hidden="true">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
           <div class="value" id="overallAccuracy">0%</div>
           <div class="label">Overall Accuracy</div>
         </div>
-        <div class="overview-card">
+        <div class="overview-card" tabindex="0">
           <div class="icon orange" aria-hidden="true">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </div>
           <div class="value" id="currentStreak">0</div>
           <div class="label">Day Streak</div>
         </div>
-        <div class="overview-card">
+        <div class="overview-card" tabindex="0">
           <div class="icon blue" aria-hidden="true">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </div>
@@ -84,9 +84,9 @@
         </div>
       </div>
 
-      <div id="resumeContent" role="tabpanel" aria-labelledby="tab-resume">
+      <div id="resumeContent" role="tabpanel" tabindex="0" aria-labelledby="tab-resume">
         <div class="modules-overview">
-          <div class="module-overview-card">
+          <div class="module-overview-card" tabindex="0">
             <div class="module-overview-header">
               <h3>Grammar</h3>
               <span class="percentage" id="grammarPercent">0%</span>
@@ -95,7 +95,7 @@
               <div class="progress-fill" id="grammarBar" style="width: 0%"></div>
             </div>
           </div>
-          <div class="module-overview-card">
+          <div class="module-overview-card" tabindex="0">
             <div class="module-overview-header">
               <h3>Vocabulary</h3>
               <span class="percentage" id="vocabPercent">0%</span>
@@ -104,7 +104,7 @@
               <div class="progress-fill green" id="vocabBar" style="width: 0%"></div>
             </div>
           </div>
-          <div class="module-overview-card">
+          <div class="module-overview-card" tabindex="0">
             <div class="module-overview-header">
               <h3>Speaking</h3>
               <span class="percentage" id="speakingPercent">0%</span>
@@ -113,7 +113,7 @@
               <div class="progress-fill yellow" id="speakingBar" style="width: 0%"></div>
             </div>
           </div>
-          <div class="module-overview-card">
+          <div class="module-overview-card" tabindex="0">
             <div class="module-overview-header">
               <h3>Writing</h3>
               <span class="percentage" id="writingPercent">0%</span>
@@ -127,22 +127,22 @@
         <div class="card" style="margin-bottom: 2rem;">
           <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem;">Accuracy by Skill</h3>
           <div class="accuracy-bars">
-            <div class="accuracy-item">
+            <div class="accuracy-item" tabindex="0">
               <span class="label">Grammar</span>
               <div class="bar"><div class="fill purple" id="grammarAccuracy" style="width: 0%"></div></div>
               <span class="value" id="grammarAccVal">0%</span>
             </div>
-            <div class="accuracy-item">
+            <div class="accuracy-item" tabindex="0">
               <span class="label">Vocabulary</span>
               <div class="bar"><div class="fill green" id="vocabAccuracy" style="width: 0%"></div></div>
               <span class="value" id="vocabAccVal">0%</span>
             </div>
-            <div class="accuracy-item">
+            <div class="accuracy-item" tabindex="0">
               <span class="label">Speaking</span>
               <div class="bar"><div class="fill yellow" id="speakingAccuracy" style="width: 0%"></div></div>
               <span class="value" id="speakingAccVal">0%</span>
             </div>
-            <div class="accuracy-item">
+            <div class="accuracy-item" tabindex="0">
               <span class="label">Writing</span>
               <div class="bar"><div class="fill blue" id="writingAccuracy" style="width: 0%"></div></div>
               <span class="value" id="writingAccVal">0%</span>
@@ -151,14 +151,14 @@
         </div>
       </div>
 
-      <div id="modulesContent" style="display:none;" role="tabpanel" aria-labelledby="tab-modules">
+      <div id="modulesContent" hidden role="tabpanel" tabindex="0" aria-labelledby="tab-modules">
         <div class="card">
           <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem;">Module Progress</h3>
           <div id="moduleDetails"></div>
         </div>
       </div>
 
-      <div id="historyContent" style="display:none;" role="tabpanel" aria-labelledby="tab-history">
+      <div id="historyContent" hidden role="tabpanel" tabindex="0" aria-labelledby="tab-history">
         <div class="card">
           <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem;">Recent Activity</h3>
           <div id="historyList"></div>
@@ -178,12 +178,14 @@
       document.querySelectorAll('.progress-tab').forEach(t => {
         t.classList.remove('active');
         t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
       });
       el.classList.add('active');
       el.setAttribute('aria-selected', 'true');
-      document.getElementById('resumeContent').style.display = tab === 'resume' ? 'block' : 'none';
-      document.getElementById('modulesContent').style.display = tab === 'modules' ? 'block' : 'none';
-      document.getElementById('historyContent').style.display = tab === 'history' ? 'block' : 'none';
+      el.setAttribute('tabindex', '0');
+      document.getElementById('resumeContent').hidden = tab !== 'resume';
+      document.getElementById('modulesContent').hidden = tab !== 'modules';
+      document.getElementById('historyContent').hidden = tab !== 'history';
     }
 
     async function loadProgress() {
@@ -222,6 +224,7 @@
           try {
             const progress = await getModuleProgress(currentUser.id, modules[i]);
             document.getElementById(barIds[i] + 'Bar').style.width = progress.percentage + '%';
+            document.getElementById(barIds[i] + 'Bar').parentElement.setAttribute('aria-valuenow', progress.percentage);
             document.getElementById(barIds[i] + 'Percent').textContent = progress.percentage + '%';
           } catch(e) {}
         }
@@ -250,7 +253,7 @@
 
           // History
           const historyHtml = scores.slice(0, 10).map(s => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div tabindex="0" style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
               <div>
                 <strong style="text-transform:capitalize;">${s.module || 'General'}</strong>
                 <span style="color:var(--text-secondary);font-size:0.85rem;margin-left:8px;">${new Date(s.created_at).toLocaleDateString()}</span>
@@ -268,7 +271,7 @@
             const modScores = moduleScores[mod] || [];
             const avg = modScores.length > 0 ? Math.round(modScores.reduce((a, b) => a + b, 0) / modScores.length) : 0;
             return `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+              <div tabindex="0" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
                 <div>
                   <strong style="text-transform:capitalize;">${mod}</strong>
                   <span style="color:var(--text-secondary);font-size:0.85rem;margin-left:8px;">${modScores.length} exercises</span>
@@ -288,6 +291,8 @@
           document.getElementById('historyList').innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:2rem;">No activity yet. Start learning!</p>';
           document.getElementById('moduleDetails').innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:2rem;">No module data yet.</p>';
         }
+
+        document.getElementById('progressTitle').focus();
 
       } catch (error) {
         console.error('Error loading progress:', error);
